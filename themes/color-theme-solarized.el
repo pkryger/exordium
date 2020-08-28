@@ -203,12 +203,12 @@ names to which it refers are bound."
      (org-started-kwd-face ((t (:foreground ,yellow :background ,base03))))
      (org-cancelled-kwd-face ((t (:foreground ,green :background ,base03))))
      (org-delegated-kwd-face ((t (:foreground ,cyan :background ,base03))))
-     (org-document-title ((t
-                           ,(append `(:weight bold :foreground ,cyan)
-                                    (if exordium-theme-use-big-font `(:height ,exordium-height-plus-4) nil)))))
-     (org-level-1 ((t
-                    ,(append `(:foreground ,base0)
-                             (if exordium-theme-use-big-font `(:height ,exordium-height-plus-4) nil)))))
+     (org-document-title ((t (:weight bold :foreground ,cyan
+                                      ,@(when exordium-theme-use-big-font `(:height ,exordium-height-plus-3))))))
+     (org-level-1 ((t (:foreground ,blue
+                                   ,@(when exordium-theme-use-big-font `(:height ,exordium-height-plus-2))))))
+     (org-level-2 ((t (:foreground ,cyan
+                                  ,@(when exordium-theme-use-big-font `(:height ,exordium-height-plus-1))))))
 
      ;; outline
      (outline-1 ((t (:foreground ,blue))))
