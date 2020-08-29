@@ -234,6 +234,9 @@ names to which it refers are bound."
      (rst-level-5 ((t (:inherit outline-5))))
      (rst-level-6 ((t (:inherit outline-6))))
 
+     ;; markdown
+     (markdown-markup-face ((t (:foreground ,cyan :background ,back :slant normal :weight normal))))
+
      ;; Flymake
      (flymake-errline ((t (:weight bold :foreground ,red :background ,back))))
      (flymake-warnline ((t (:weight bold :foreground ,orange :background ,back))))
