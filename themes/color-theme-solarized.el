@@ -195,10 +195,10 @@ names to which it refers are bound."
      (outline-2 ((t (:foreground ,cyan))))
      (outline-3 ((t (:foreground ,yellow))))
      (outline-4 ((t (:foreground ,red))))
-     (outline-5 ((t (:foreground ,base0))))
-     (outline-6 ((t (:foreground ,base01))))
-     (outline-7 ((t (:foreground ,orange))))
-     (outline-8 ((t (:foreground ,violet))))
+     (outline-5 ((t (:foreground ,orange))))
+     (outline-6 ((t (:foreground ,violet))))
+     (outline-7 ((t (:foreground ,base0))))
+     (outline-8 ((t (:foreground ,base01))))
 
      ;; Org
      (org-hide ((t (:foreground ,base03))))
