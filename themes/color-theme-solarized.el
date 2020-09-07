@@ -338,6 +338,9 @@ names to which it refers are bound."
 
      ;; magit and forge
      (forge-topic-closed ((t (:foreground ,base00))))
+
+     ;; company
+     (company-tooltip-selection ((t (:background ,base02))))
      )))
 
 (defmacro define-solarized-theme (mode)
