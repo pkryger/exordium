@@ -55,8 +55,6 @@
 ;; (let ((custom--inhibit-theme-enable nil))
 ;;   (eval-buffer "color-theme-solarized.el")
 ;;   (set-colors-solarized-light))
-;; show colors in emacs
-;; (list-colors-display (mapcar #'cdr solarized-colors))
 
 (defmacro solarized-face-specs ()
   "Return a backquote which defines a list of face specs.
@@ -64,13 +62,12 @@ It expects to be evaluated in a scope in which the various color
 names to which it refers are bound."
   (quote
    `(;; Standard faces
-     (default ((t (:foreground ,base0 ,@(when window-system `(:background ,back))))))
+     (default ((t (:foreground ,base0 :background ,back))))
      (shadow ((t (:background ,base01))))
      (success ((t (:foreground ,green))))
      (error ((t (:weight bold :foreground ,red))))
      (warning ((t (:weight bold :foreground ,orange))))
-     ,(when window-system
-       `(scroll-bar ((t (:background ,back)))))
+     (scroll-bar ((t (:background ,back))))
 
      ;; Parenthesis matching (built-in)
      (show-paren-match ((t (:weight bold :foreground ,cyan :background ,base02))))
@@ -82,7 +79,7 @@ names to which it refers are bound."
 
      ;; tab-bar
      (tab-bar ((t (:foreground ,base0 :background ,base02))))
-     (tab-bar-tab ((t (:foreground ,base1 ,@(when window-system `(:background ,back))))))
+     (tab-bar-tab ((t (:foreground ,base1 :background ,back))))
      (tab-bar-tab-inactive ((t (:foreground ,base01 :background ,base02))))
 
      ;; font-lock
@@ -121,8 +118,7 @@ names to which it refers are bound."
      (link ((t (:foreground ,violet :underline t))))
      (link-visited ((t (:foreground ,magenta :underline t))))
      (vertical-border ((t (:foreground ,base0))))
-     (fill-column-indicator ((t (:foreground ,base01 :slant normal
-                                             ,@(when window-system `(:background ,back))))))
+     (fill-column-indicator ((t (:foreground ,base01 :background ,back :slant normal))))
 
      ;; Mode line
      (minibuffer-prompt ((t (:weight bold :foreground ,cyan))))
@@ -142,16 +138,16 @@ names to which it refers are bound."
      (exordium-project-name ((t (:background ,violet :foreground ,back))))
 
      ;; Search
-     (isearch ((t (:foreground ,orange ,@(when window-system `(:background ,back))))))
-     (isearch-fail ((t (:foreground ,orange ,@(when window-system `(:background ,back))))))
-     (lazy-highlight ((t (:foreground ,yellow ,@(when window-system `(:background ,back))))))
-     (match ((t (:foreground ,yellow ,@(when window-system `(:background ,back))))))
+     (isearch ((t (:foreground ,orange :background ,back))))
+     (isearch-fail ((t (:foreground ,orange :background ,back))))
+     (lazy-highlight ((t (:foreground ,yellow :background ,back))))
+     (match ((t (:foreground ,yellow :background ,back))))
 
      ;; Hi-Lock
-     (hi-yellow ((t (:foreground ,yellow ,@(when window-system `(:background ,back)) :inverse-video t))))
-     (hi-pink ((t (:foreground ,magenta ,@(when window-system `(:background ,back)) :inverse-video t))))
-     (hi-green ((t (:foreground ,green ,@(when window-system `(:background ,back)) :inverse-video t))))
-     (hi-blue ((t (:foreground ,cyan ,@(when window-system `(:background ,back)) :inverse-video t))))
+     (hi-yellow ((t (:foreground ,yellow :background ,back :inverse-video t))))
+     (hi-pink ((t (:foreground ,magenta :background ,back :inverse-video t))))
+     (hi-green ((t (:foreground ,green :background ,back :inverse-video t))))
+     (hi-blue ((t (:foreground ,cyan :background ,back :inverse-video t))))
 
      ;; Compilation
      (compilation-info ((t (:weight bold :foreground ,green))))
@@ -173,7 +169,7 @@ names to which it refers are bound."
      (custom-documentation ((t (:inherit default))))
      (custom-group-tag ((t (:foreground ,base1))))
      (custom-group-tag-1 ((t (:weight bold :foreground ,base1))))
-     (custom-invalid ((t (:foreground ,red ,@(when window-system `(:background ,back))))))
+     (custom-invalid ((t (:foreground ,red :background ,back))))
      (custom-link ((t (:foreground ,violet))))
      (custom-state ((t (:foreground ,green))))
      (custom-variable-tag ((t (:foreground ,base1))))
@@ -209,7 +205,7 @@ names to which it refers are bound."
      (org-todo ((t (:weight bold :foreground ,base03 :background ,red))))
      (org-done ((t (:weight bold :foreground ,green))))
      (org-block ((t (:background ,base02))))
-     (org-code ((t (:foreground ,cyan ,@(when window-system `(:background ,back))))))
+     (org-code ((t (:foreground ,cyan :background ,back))))
      (org-verbatim ((t (:background ,base02))))
      (org-todo-kwd-face ((t (:foreground ,red :background ,base03))))
      (org-done-kwd-face ((t (:foreground ,green :background ,base03))))
@@ -241,11 +237,11 @@ names to which it refers are bound."
      (rst-level-6 ((t (:inherit outline-6))))
 
      ;; markdown
-     (markdown-markup-face ((t (:foreground ,cyan ,@(when window-system `(:background ,back)) :slant normal :weight normal))))
+     (markdown-markup-face ((t (:foreground ,cyan :background ,back :slant normal :weight normal))))
 
      ;; Flymake
-     (flymake-errline ((t (:weight bold :foreground ,red ,@(when window-system `(:background ,back))))))
-     (flymake-warnline ((t (:weight bold :foreground ,orange ,@(when window-system `(:background ,back))))))
+     (flymake-errline ((t (:weight bold :foreground ,red :background ,back))))
+     (flymake-warnline ((t (:weight bold :foreground ,orange :background ,back))))
 
      ;; js2-mode
      (js2-warning ((t (:underline ,orange :style wave))))
