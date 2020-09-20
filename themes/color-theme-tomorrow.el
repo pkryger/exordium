@@ -353,6 +353,8 @@ names to which it refers are bound."
                                     (if exordium-theme-use-big-font `(:height ,exordium-height-plus-4) nil)))))
      (org-todo ((t (:foreground ,red :weight bold :box nil))))
      (org-done ((t (:foreground ,green :weight bold :box nil))))
+     (exordium-org-wait ((t (:foreground ,yellow :weight bold :box nil))))
+     (exordium-org-work ((t (:foreground ,orange :weight bold :box nil))))
      (org-checkbox ((t (:background ,yellow :foreground ,background :weight bold))))
      (org-ellipsis ((t (:foreground ,comment))))
      (org-footnote ((t (:foreground ,aqua))))
@@ -528,17 +530,6 @@ names to which it refers are bound."
 (defun tomorrow-mode-name ()
   "Return the mode without the tomorrow- prefix, e.g. day, night etc."
   (intern (substring (symbol-name exordium-theme) 9)))
-
-(defun set-tomorrow-extra-org-statuses ()
-  (with-tomorrow-colors
-   (tomorrow-mode-name)
-   (setq org-todo-keyword-faces
-         `(("WORK" . (;:background ,yellow
-                      :foreground ,yellow
-                      :weight bold :box nil))
-           ("WAIT" . (;:background ,orange
-                      :foreground ,orange
-                      :weight bold :box nil))))))
 
 ;; Debugging functions
 
