@@ -12,15 +12,6 @@
 (use-package org
   :commands (org-mode)
   :mode (("\\.org\\'" . org-mode))
-  :init
-  (use-package fill-column-indicator
-    :if (version< emacs-version "27")
-    :config
-    (add-hook 'org-src-mode-hook
-              (lambda ()
-                (turn-off-fci-mode))))
-
-
   :custom
   (org-todo-keywords
    '((sequence "TODO(t)" "WORK(w!/!)" "WAIT(a@/!)" "|" "DONE(d!/!)")))
@@ -43,6 +34,14 @@
                    org-html-head)
                  "Configure export using a css style sheet")
   :config
+  (use-package fill-column-indicator
+    :if (version< emacs-version "27")
+    :config
+    (add-hook 'org-src-mode-hook #'turn-off-fci-mode))
+  (add-hook 'org-src-mode-hook
+            #'(lambda ()
+                (flycheck-disable-checker 'emacs-lisp-checkdoc)))
+  (add-hook 'org-mode-hook #'turn-on-visual-line-mode)
   ;; TODO: delete `exordium-enable-org-export'??
   (when exordium-enable-org-export
     ;; Enable org-babel for perl, ruby, sh, python, emacs-lisp, C, C++, etc
