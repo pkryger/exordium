@@ -40,7 +40,7 @@
     (add-hook 'org-src-mode-hook #'turn-off-fci-mode))
   (add-hook 'org-src-mode-hook
             #'(lambda ()
-                (flycheck-disable-checker 'emacs-lisp-checkdoc)))
+                (add-to-list 'flycheck-disabled-checkers 'emacs-lisp-checkdoc)))
   (add-hook 'org-mode-hook #'turn-on-visual-line-mode)
   ;; TODO: delete `exordium-enable-org-export'??
   (when exordium-enable-org-export
