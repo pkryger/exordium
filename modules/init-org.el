@@ -12,6 +12,9 @@
 (use-package org
   :commands (org-mode)
   :mode (("\\.org\\'" . org-mode))
+  :bind
+  (:map org-mode-map
+        ([remap org-toggle-comment] . #'iedit-mode))
   :custom
   (org-todo-keywords
    '((sequence "TODO(t)" "WORK(w!/!)" "WAIT(a@/!)" "|" "DONE(d!/!)")))
@@ -56,7 +59,6 @@
        (emacs-lisp . t)
        (C          . t)
        (dot        . t)))))
-
 
 
 ;;; Show org-mode bullets as UTF-8 characters.
