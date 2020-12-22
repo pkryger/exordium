@@ -29,14 +29,7 @@
   (org-src-preserve-indentation t)
   (org-confirm-babel-evaluate (not exordium-no-org-babel-confirm)
                               "Turn off the confirmation for code eval when using org-babel.")
-  (org-html-htmlize-output-type (if exordium-org-export-css
-                                    'css
-                                  org-html-htmlize-output-type)
-                                "Configure export using a css style sheet")
-  (org-html-head (if exordium-org-export-css
-                     exordium-org-export-css-stylesheet
-                   org-html-head)
-                 "Configure export using a css style sheet")
+  (org-support-shift-select t)
   :config
   (use-package fill-column-indicator
     :if (version< emacs-version "27")
@@ -72,7 +65,16 @@
 
 (use-package ox-html
   :ensure org
-  :after (org))
+  :after (org)
+  :custom
+  (org-html-htmlize-output-type (if exordium-org-export-css
+                                    'css
+                                  org-html-htmlize-output-type)
+                                "Configure export using a css style sheet")
+  (org-html-head (if exordium-org-export-css
+                     exordium-org-export-css-stylesheet
+                   org-html-head)
+                 "Configure export using a css style sheet"))
 
 (use-package ox-md
   :ensure org
