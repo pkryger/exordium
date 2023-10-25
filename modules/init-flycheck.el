@@ -137,8 +137,14 @@ See URL `http://mypy-lang.org/'."
 To override the path to the ruff executable, set
 `flycheck-exordium-python-ruff-executable'.
 See URL `http://pypi.python.org/pypi/ruff'."
-    :command ("ruff"
-              "--format=text"
+    :command ("ruff" "check"
+              (eval (if (version<= "0.1"
+                                   (replace-regexp-in-string
+                                    "ruff \\([0-9]\.\+\\).*\n?" "\\1"
+                                    (shell-command-to-string "ruff --version")))
+                        "--output-format"
+                      "--format"))
+              "text"
               (eval (when buffer-file-name
                       (concat "--stdin-filename=" buffer-file-name)))
               "-")
