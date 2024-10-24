@@ -266,13 +266,52 @@
 (use-package vlf-setup
   :ensure vlf)
 
+(defun exordium-delete-trailing-whitespace-in-buffer (&optional start end)
+  "Delete tailing whitespace in current buffer between START and END.
+Like `delete-trailing-whitespace', but when
+`exordium-delete-trailing-whitespace-skip-data' is non-nil it will not
+affect data sections in Perl and Ruby modes, unless called with an non-nil END.
+
+If called interactively, START and END are the start/end of the
+region if the mark is active, or of the buffer's accessible
+portion, up to data secion, if the mark is inactive.
+
+Data section is denoted by a keyword __END__ or __DATA__ or a
+control character (^D, ^Z).  See
+https://perldoc.perl.org/perldata and
+https://docs.ruby-lang.org/en/3.3/Object.html for more details."
+  (interactive (progn
+                 (barf-if-buffer-read-only)
+                 (if (use-region-p)
+                     (list (region-beginning) (region-end))
+                   (list nil nil))))
+  (delete-trailing-whitespace
+   start
+   (or end
+       (when-let ((exordium-delete-trailing-whitespace-skip-data)
+                  (keywords (cond
+                             ((derived-mode-p 'ruby-mode 'ruby-ts-mode 'enh-ruby-mode)
+                              '("__END__"))
+                             ((derived-mode-p 'perl-mode 'perl-ts-mode)
+                              '"__END__" "__DATA__" "" ""))))
+         (save-match-data
+           (save-excursion
+             (goto-char (point-min))
+             (when (re-search-forward
+                    (rx-to-string
+                     `(seq bol (or ,@keywords) (zero-or-more whitespace) eol)
+                     t)
+                    nil t)
+               (point))))))))
+
 ;; Remove trailing blanks on save
 (define-minor-mode delete-trailing-whitespace-mode
-  "Remove trailing whitespace upon saving a buffer"
+  "Remove trailing whitespace upon saving a buffer.
+See `exordium-delete-trailing-whitespace-in-buffer' for more details."
   :lighter nil
   (if delete-trailing-whitespace-mode
-      (add-hook 'before-save-hook #'delete-trailing-whitespace nil t)
-    (remove-hook 'before-save-hook #'delete-trailing-whitespace t)))
+      (add-hook 'before-save-hook #'exordium-delete-trailing-whitespace-in-buffer nil t)
+    (remove-hook 'before-save-hook #'exordium-delete-trailing-whitespace-in-buffer t)))
 
 (define-globalized-minor-mode global-delete-trailing-whitespace-mode
   delete-trailing-whitespace-mode
