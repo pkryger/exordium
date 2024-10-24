@@ -91,6 +91,16 @@ a lot of trailing whitespaces."
   :group 'exordium
   :type  'boolean)
 
+(defcustom exordium-delete-trailing-whitespace-skip-data t
+  "When t preserve whitespaces in Data section in Perl and Ruby modes.
+This variable is used by
+`exordium-delete-trailing-whitespace-in-buffer' (see docstring
+for details) and in consequence in
+`delete-trailing-whitespace-mode' and
+`global-delete-trailing-whitespace-mode'."
+  :group 'exordium
+  :type 'boolean)
+
 (defcustom exordium-enable-electric-pair-mode t
   "Whether to enable `electric-pair-mode'."
   :group 'exordium
