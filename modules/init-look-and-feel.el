@@ -267,18 +267,120 @@
 (use-package vlf-setup
   :ensure vlf)
 
+(defun exordium-delete-trailing-whitespace-in-buffer (&optional start end)
+  "Delete trailing whitespace in current buffer.
+Like `delete-trailing-whitespace', but any restrictions are
+ignored.
+
+Additionally, when called with a nil END and
+`exordium-delete-trailing-whitespace-skip-data' is non-nil it
+will not affect data sections in Ruby and Perl modes (with an
+exception of a perlpod).  When both END and
+`exordium-delete-trailing-whitespace-skip-data' are nil it will
+delete whitespace in the whole buffer.  When called with a
+non-nil END it will delete trailing whitespace up to END.
+
+If called interactively, START and END are the start/end of the
+region if the mark is active, or the whole buffer, up to data
+secion (when `exordium-delete-trailing-whitespace-skip-data' is
+non-nil), if the mark is inactive.
+
+The function doesn't delete trailing whitespaces when buffer is
+in `diff-mode', `exordium-delete-trailing-whitespace-skip-data'
+is non-nil, and the function has been called without a prefix argument.
+
+Depending on mode a data section starts after a line with a one
+of keywords __END__ or __DATA__ or a one of control
+characters (^D, ^Z) and ends at the end of file.  Such a
+preservation of whitespaces may be important for some types of
+data (i.e., patches) but should be to safe to clear it from
+others other (i.e., perlpod).  See
+https://perldoc.perl.org/perldata,
+https://perldoc.perl.org/perlpodspec, and
+https://docs.ruby-lang.org/en/3.3/Object.html for more details."
+  (interactive (progn
+                 (barf-if-buffer-read-only)
+                 (if (use-region-p)
+                     (list (region-beginning) (region-end))
+                   (list nil nil))))
+  (if (and (not current-prefix-arg)
+           (apply #'derived-mode-p
+                  '(diff-mode special-mode view-mode comint-mode cider-repl-mode haskell-interactive-mode)))
+      (when (called-interactively-p 'any)
+        (user-error "Not deleting trailing whitespaces in '%s', call with prefix to override"
+                    major-mode))
+    (without-restriction
+      (save-excursion
+        (save-match-data
+          (goto-char (point-min))
+          (when-let* (((looking-at
+                        (rx string-start (group (zero-or-more (or whitespace "\n")) (or "\n" line-end)))))
+                      (b (match-beginning 1))
+                      (e (match-end 1))
+                      ((region-modifiable-p b e)))
+            (delete-region b e))
+
+          (let ((end
+                 (or end
+                     (when-let* ((exordium-delete-trailing-whitespace-skip-data)
+                                 (data-keywords (cond
+                                                 ((derived-mode-p 'ruby-mode
+                                                                  'ruby-ts-mode
+                                                                  'enh-ruby-mode)
+                                                  '("__END__"))
+                                                 ((derived-mode-p 'perl-mode
+                                                                  'perl-ts-mode
+                                                                  'cperl-mode)
+                                                  '("__END__" "__DATA__" "" ""))))
+                                 (perlpod-keywords '("pod" "head1" "head2" "head3"
+                                                     "head4" "head5" "head6" "over"
+                                                     "item" "back" "begin" "end"
+                                                     "for" "encoding" "cut")))
+                       (when (re-search-forward
+                              (rx-to-string
+                               `(seq line-start (or ,@data-keywords) (zero-or-more whitespace) line-end)
+                               t)
+                              nil t)
+                         (let ((point (point)))
+                           (unless (and (derived-mode-p 'perl-mode
+                                                        'perl-ts-mode
+                                                        'cperl-mode)
+                                        (re-search-forward
+                                         (rx-to-string
+                                          `(seq "\n" (zero-or-more whitespace) "\n" "=" (or ,@perlpod-keywords)) t)
+                                         nil t))
+                             ;; delete trailing lines, as `delete-trailing-whitespace' won't handle it
+                             (when-let* ((delete-trailing-lines)
+                                         ((re-search-forward
+                                           (rx line-start (group (one-or-more (or whitespace "\n"))) string-end)
+                                           nil t))
+                                         (b (match-beginning 1))
+                                         (e (match-end 1))
+                                         ((region-modifiable-p b e)))
+                               (delete-region b e))
+                             ;; ensure trailing new line is present, as `delete-trailing-whitespace' won't handle it
+                             (when (and require-final-newline
+                                        (not (re-search-forward (rx "\n" string-end) nil t)))
+                               (goto-char (point-max))
+                               (insert "\n"))
+                             ;; trim whitespace only up to data section
+                             point)))))))
+            (delete-trailing-whitespace start end)))))))
+
 ;; Remove trailing blanks on save
 (define-minor-mode delete-trailing-whitespace-mode
-  "Remove trailing whitespace upon saving a buffer"
+  "Remove trailing whitespace upon saving a buffer.
+See `exordium-delete-trailing-whitespace-in-buffer' for more details."
   :lighter nil
   (if delete-trailing-whitespace-mode
-      (add-hook 'before-save-hook #'delete-trailing-whitespace nil t)
-    (remove-hook 'before-save-hook #'delete-trailing-whitespace t)))
+      (add-hook 'before-save-hook #'exordium-delete-trailing-whitespace-in-buffer nil t)
+    (remove-hook 'before-save-hook #'exordium-delete-trailing-whitespace-in-buffer t)))
 
 (define-globalized-minor-mode global-delete-trailing-whitespace-mode
   delete-trailing-whitespace-mode
   (lambda ()
-    (delete-trailing-whitespace-mode t)))
+    (delete-trailing-whitespace-mode t))
+  :group 'exordium)
 
 (when exordium-delete-trailing-whitespace
   (global-delete-trailing-whitespace-mode t))
