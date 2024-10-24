@@ -122,6 +122,59 @@ a lot of trailing whitespaces."
   :group 'exordium
   :type  'boolean)
 
+(defcustom exordium-delete-trailing-whitespace-skip-data t
+  "When t preserve whitespaces in Data section in Perl and Ruby modes.
+This variable is used by
+`exordium-delete-trailing-whitespace-in-buffer' (which see) and
+in consequence in `delete-trailing-whitespace-mode' and
+`global-delete-trailing-whitespace-mode'.
+
+See also `exordium-delete-trailing-whitespace-data-keywords'."
+  :group 'exordium
+  :type 'boolean)
+
+(defcustom exordium-delete-trailing-whitespace-inhibit-modes
+  '(diff-mode special-mode view-mode comint-mode cider-repl-mode
+              haskell-interactive-mode)
+  "List of modes where deletion of trailing whitespaces is inhibited.
+See also docstring for
+`exordium-delete-trailing-whitespace-in-buffer' and
+`delete-trailing-whitespace-mode'."
+  :type '(repeat (symbol :tag "Mode"))
+  :group 'exordium)
+
+(defcustom exordium-delete-trailing-whitespace-data-keywords
+  '(((ruby-mode ruby-ts-mode enh-ruby-mode) . ("__END__"))
+    ((perl-mode perl-ts-mode cperl-mode) . ("__END__" "__DATA__" "" "")))
+  "Mapping between modes and keywords that indicate data section for that mode.
+Data section will not have its trailing whitespace
+deleted, barred for trailing new lines when
+`delete-trailing-lines' is non nil and for ensuring ending
+newline when `require-final-newline' is non nil.
+
+See also `exordium-delete-trailing-whitespace-data-perlpod-keywords'."
+  :type '(alist :key-type (choice
+                           (symbol :tag "Mode")
+                           (repeat (symbol :tag "Mode")))
+                :value-type (repeat (string :tag "Keyword")))
+  :group 'exordium)
+
+(defcustom exordium-delete-trailing-whitespace-data-perlpod-keywords
+  '((perl-mode perl-ts-mode cperl-mode) . ("pod" "head1" "head2" "head3"
+                                           "head4" "head5" "head6" "over"
+                                           "item" "back" "begin" "end"
+                                           "for" "encoding" "cut"))
+  "Mapping between Perl mode and perlpod keywords.
+When a data section happens to contain a perlpod as sensed by
+existence of a perlpod keyword it will have its trailing
+whitespaces deleted, even when
+`exordium-delete-trailing-whitespace-skip-data' is non-nil."
+  :type '(alist :key-type (choice
+                           (symbol :tag "Mode")
+                           (repeat (symbol :tag "Mode")))
+                :value-type (repeat (string :tag "Keyword")))
+  :group 'exordium)
+
 (defcustom exordium-enable-electric-pair-mode t
   "Whether to enable `electric-pair-mode'."
   :group 'exordium
