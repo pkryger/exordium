@@ -148,6 +148,34 @@ melpa-stable.")
   (message "Loading tapped before-init file: %s" tapped-file)
   (load (file-name-sans-extension tapped-file)))
 
+(require 'cl-lib)
+
+(defvar exordium--dbg-last-load-history nil)
+(defvar exordium--dbg-last-load-path nil)
+
+(defun exordium--dbg-print-load-history-and-path (marker)
+  "Print all new entries in `load-history' and `load-path'.
+Use MARKER to denote where it's been printed from."
+  (message "[%s] new load-history: %s"
+           marker
+           (mapcar #'file-truename
+                   (cl-remove-if-not #'stringp
+                                     (mapcar #'car
+                                             (cl-subseq load-history
+                                                        0
+                                                        (cl-position exordium--dbg-last-load-history
+                                                                     load-history))))))
+  (setq exordium--dbg-last-load-history (car load-history))
+  (message "[%s] new load-path: %s"
+           marker
+           (cl-subseq load-path
+                      0
+                      (cl-position exordium--dbg-last-load-path
+                                   load-path)))
+  (setq exordium--dbg-last-load-path (car load-path)))
+
+(exordium--dbg-print-load-history-and-path "init")
+
 (eval-and-compile
   (load (file-name-concat (locate-user-emacs-file "modules") "init-require")))
 
@@ -156,8 +184,12 @@ melpa-stable.")
 ;; Use M-x `package-list-package' to load and display the list of packages,
 ;; then press I to mark for installation and X to execute (it's like `dired').
 
+(exordium--dbg-print-load-history-and-path "after init-require")
+
 ;; Initialize the package system
 (require 'package)
+
+(exordium--dbg-print-load-history-and-path "after package")
 
 (add-to-list 'package-archives
              (cons "melpa" exordium-melpa-package-repo) t)
@@ -183,10 +215,17 @@ melpa-stable.")
   (package-refresh-contents)
   (package-install 'use-package))
 
+(exordium--dbg-print-load-history-and-path "after refresh")
+
+
 ;; This is only needed once, near the top of the file
 (require 'use-package)
 
+(exordium--dbg-print-load-history-and-path "after use-package")
+
 (exordium-require 'init-force-elpa)
+
+(exordium--dbg-print-load-history-and-path "after force-elpa")
 
 ;; Pin user extra packages early, in case they are dependencies of some other
 ;; packages that are installed early.
@@ -199,12 +238,16 @@ melpa-stable.")
   (use-package-always-ensure t)
   (use-package-compute-statistics t))
 
+(exordium--dbg-print-load-history-and-path "after use-package config")
+
 ;; Some packages (i.e., magit, forge) require relatively new package `seq'.
 ;; Unfortunately, `package' is unable to bump the built-in `seq'.  Ensure it is
 ;; installed in the newest available version.
 (use-package seq
   :defer t
   :exordium-force-elpa gnu)
+
+(exordium--dbg-print-load-history-and-path "after seq")
 
 ;; `org' may be upgraded from ELPA (for example, as a part of a first start)
 ;; and some packages depend on it.  To prevent loading a built in version by
@@ -213,11 +256,17 @@ melpa-stable.")
   :defer t
   :exordium-force-elpa gnu)
 
+(exordium--dbg-print-load-history-and-path "after org")
+
 (use-package diminish
   :exordium-force-elpa gnu)
 
+(exordium--dbg-print-load-history-and-path "after diminish")
+
 (use-package bind-key
   :exordium-force-elpa gnu)
+
+(exordium--dbg-print-load-history-and-path "after bind-key")
 
 (dolist (pkg exordium-extra-pinned)
   (unless (package-installed-p pkg)
@@ -250,6 +299,7 @@ Also discard .elc without corresponding .el."
             (delete-file elc)))))))
 (exordium-recompile-modules)
 
+(exordium--dbg-print-load-history-and-path "after recompile modules")
 
 ;; Exordium's CI sometimes signals `ask-user-about-lock' cannot be used in non
 ;; interactive mode.  It used to be that `helm' (and perhaps other packages as
@@ -338,11 +388,17 @@ Also remove temp file and relevant entry from
 This is to mimic what `package-unpack' does: it reloads package
 after it's been byte compiled."
     (when-let* ((desc (package-load-descriptor (car args))))
+      (exordium--dbg-print-load-history-and-path
+       (format "before reloading %s"
+               (package-desc-name desc)))
       (cond
        ((fboundp 'package--reload-previously-loaded) ;; Since Emacs-29
         (package--reload-previously-loaded desc))
        ((fboundp 'package--load-files-for-activation) ;; Until Emacs-28
-        (package--load-files-for-activation desc :reload)))))
+        (package--load-files-for-activation desc :reload)))
+      (exordium--dbg-print-load-history-and-path
+       (format "after reloading %s"
+               (package-desc-name desc)))))
 
   :config
   (advice-add 'async-byte-compile-file
@@ -355,6 +411,8 @@ after it's been byte compiled."
               :after #'exordium--async-package-reload-previously-loaded)
   (async-bytecomp-package-mode))
 
+(exordium--dbg-print-load-history-and-path "after async")
+
 
 ;;; Load Modules
 
@@ -362,6 +420,7 @@ after it's been byte compiled."
 (exordium-require 'init-lib)              ; Utility functions - load this first
 (exordium-require 'init-environment)      ; environment variables
 
+(exordium--dbg-print-load-history-and-path "after environment")
 
 (dolist (tapped-file exordium-tapped-prefs-files)
   (message "Loading tapped prefs file: %s" tapped-file)
@@ -377,6 +436,8 @@ after it's been byte compiled."
 (when exordium-theme
   (exordium-require 'init-themes))
 
+(exordium--dbg-print-load-history-and-path "after themes")
+
 ;; Look and feel
 (exordium-require 'init-look-and-feel)     ; fonts, UI, keybindings, saving files etc.
 (exordium-require 'init-font-lock)         ; enables/disables font-lock globally.
@@ -384,6 +445,8 @@ after it's been byte compiled."
 (when exordium-smooth-scroll
   (exordium-require 'init-smooth-scroll)
   (smooth-scroll-mode 1))                  ; smooth scroll
+
+(exordium--dbg-print-load-history-and-path "after smooth-scroll")
 
 (update-progress-bar)
 
@@ -393,6 +456,8 @@ after it's been byte compiled."
 (unless exordium-helm-everywhere
   (exordium-require 'init-ido))           ; supercharged completion engine
 (exordium-require 'init-highlight)        ; highlighting current line, symbol under point
+
+(exordium--dbg-print-load-history-and-path "after highlight")
 
 (pcase exordium-complete-mode
   (:auto-complete
@@ -406,6 +471,8 @@ after it's been byte compiled."
 (when (and exordium-projectile exordium-helm-projectile)
   (exordium-require 'init-helm-projectile))
 
+(exordium--dbg-print-load-history-and-path "after helm")
+
 (when exordium-help-extensions
   (exordium-require 'init-help))           ; extra help
 
@@ -416,6 +483,8 @@ after it's been byte compiled."
 (exordium-require 'init-git-visit-diffs)  ; visit diffs in successive narrowed buffers
 (exordium-require 'init-forge)            ; Forge
 (exordium-require 'init-flb-mode)         ; frame-local buffers
+
+(exordium--dbg-print-load-history-and-path "after flb")
 
 (update-progress-bar)
 
@@ -434,12 +503,16 @@ after it's been byte compiled."
 (when exordium-osx
   (exordium-require 'init-osx))
 
+(exordium--dbg-print-load-history-and-path "after osx")
+
 ;; C++
 (exordium-require 'init-cpp)
 (exordium-require 'init-bde-style)
 (when exordium-yasnippet
   (exordium-require 'init-yasnippet))
 (exordium-require 'init-gdb)
+
+(exordium--dbg-print-load-history-and-path "after gdb")
 
 ;; RTags
 (exordium-require 'init-rtags nil
@@ -475,6 +548,8 @@ after it's been byte compiled."
 ;; include-what-you-use
 (exordium-require 'init-iwyu)
 
+(exordium--dbg-print-load-history-and-path "after iwyu")
+
 (update-progress-bar)
 
 (when (and exordium-theme exordium-enable-powerline)
@@ -494,6 +569,8 @@ after it's been byte compiled."
 (when exordium-lsp-mode-enable
   (exordium-require 'init-lsp))
 
+(exordium--dbg-print-load-history-and-path "after lsp")
+
 ;; Desktop - close to the end so customisations had a chance to kick in
 (when exordium-desktop
   (exordium-require 'init-desktop))
@@ -502,6 +579,8 @@ after it's been byte compiled."
 (dolist (tapped-file exordium-tapped-after-init-files)
   (message "Loading tapped after-init file: %s" tapped-file)
   (load (file-name-sans-extension tapped-file)))
+
+(exordium--dbg-print-load-history-and-path "after tapped after-init")
 
 (update-progress-bar)
 
