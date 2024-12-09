@@ -117,7 +117,6 @@
 
 (use-package ace-window
   :defer t
-  :after (posframe)
   :diminish "AW"
   :custom
   (aw-scope 'frame)
