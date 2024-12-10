@@ -225,6 +225,29 @@ displayed by the current font default will be used."
   :group 'exordium
   :type  'boolean)
 
+(defcustom exordium-highlight-symbol-map-modifier 'meta
+  "Modifier key for key bindings when point is in a highlighted symbol.
+By default `symbol-overlay-map' (which see) defines single letter
+bindings.  This conflicts with self-insert commands and
+historically it was not Exordium's default.  That is a
+highlighted symbol used to be editable by pressing any letter.
+Setting this variable to a value of KEY will rebind single
+LETTER binding in `symbol-overlay-key' to \"<KEY>-<LETTER>\"
+form.  Possible KEY values are:
+
+  * \\='original - use original \"<LETTER>\" bindings, as defined
+    in `overlay-symbol-map', which see.
+
+  * \\='meta, \\='control, \\='super, or \\='hyper - use
+    \"M-<LETTER>\", \"C-<LETTER>\", \"s-<LETTER>\", or
+    \"H-<LETTER>\" respectively."
+  :type '(choice (symbol :tag "Original `overlay-symbol' bindings" 'original)
+                 (symbol :tag "Meta prefix for bindings" 'meta)
+                 (symbol :tag "Control prefix for bindings" 'control)
+                 (symbol :tag "Super prefix for bindings" 'super)
+                 (symbol :tag "Hyper prefix for bindings" 'hyper))
+  :group 'exordium)
+
 (defcustom exordium-skip-taps-update nil
   "Whether to skip taps update when updating configuration.
 If set to nil, each tap need to be updated manually,
