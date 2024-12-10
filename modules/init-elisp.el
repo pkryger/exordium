@@ -20,6 +20,18 @@
 (use-package elisp-mode
   :ensure nil
   :defer t
+  :functions (exordium--pp-output-setup)
+  :init
+  (defun exordium--pp-output-setup ()
+    "Enable `lexical-binding' and disable `flycheck-checkdoc' in PP output buffers."
+    (when (string-match-p (rx "*Pp " (or "Eval" "Macroexpand") " Output*")
+                          (buffer-name))
+      (when (boundp 'flycheck-disabled-checkers)
+        (add-to-list 'flycheck-disabled-checkers 'emacs-lisp-checkdoc))
+      (goto-char (point-min))
+      (insert ";; -*- lexical-binding: t -*-\n\n")
+      (goto-char (point-min))
+      (setq-local lexical-binding t)))
   :bind
   (:map emacs-lisp-mode-map
    ("M-C-g" . #'helm-imenu)
@@ -34,7 +46,10 @@
    ("C-c C-M-e" . #'pp-macroexpand-last-sexp)
    ("M-." . #'xref-find-definitions)
    ("M-," . #'xref-go-back)
-   ("M-r" . #'xref-find-references)))
+   ("M-r" . #'xref-find-references))
+  :config
+  (add-hook 'emacs-lisp-mode-hook
+            #'exordium--pp-output-setup))
 
 (use-package elisp-mode
   :ensure nil
