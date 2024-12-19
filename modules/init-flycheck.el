@@ -167,7 +167,11 @@ To override the path to the ruff executable, set
 See URL `http://pypi.python.org/pypi/ruff'."
     :command ("ruff" "check"
               (eval (let ((ruff-version (replace-regexp-in-string
-                                    "ruff \\([0-9]\.\+\\).*\n?" "\\1"
+                                    (rx "ruff "
+                                        (group (one-or-more digit)
+                                               (one-or-more (seq "." (one-or-more digit))))
+                                        (zero-or-more not-newline) (zero-or-more "\n"))
+                                    (rx (backref 1))
                                     (shell-command-to-string "ruff --version"))))
                       (cond
                        ((version< ruff-version "0.1")
@@ -220,6 +224,19 @@ See URL `http://pypi.python.org/pypi/ruff'."
 
   (add-to-list 'flycheck-shellcheck-supported-shells 'ksh93))
 
+
+(use-package flycheck-relint
+  :after (flycheck)
+  :config
+  (flycheck-relint-setup))
+
+
+(use-package flycheck-package
+  :after flycheck
+  :config
+  (flycheck-package-setup))
+
+
 (provide 'init-flycheck)
 
 ;;; init-flycheck.el ends here

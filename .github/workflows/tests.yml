@@ -68,6 +68,10 @@ jobs:
         if: contains(fromJSON('["29.4", "snapshot"]'), matrix.emacs_version)
         run: '"${HOME}/.emacs.d/.ci/batch-checkdoc.sh"'
 
+      - name: 'Lint: relint'
+        if: contains(fromJSON('["29.4", "snapshot"]'), matrix.emacs_version)
+        run: '"${HOME}/.emacs.d/.ci/batch-relint.sh"'
+
       - name: 'Lint: compilation' # Close to the end, to let other builds escape errors
                                   # caused by compilation shenanigans
         if: contains(fromJSON('["29.4", "snapshot"]'), matrix.emacs_version)

@@ -87,6 +87,12 @@ bug (page break lines wrap around)."
 (use-package eval-sexp-fu
   :demand t)
 
+;;; Scans Emacs Lisp files for mistakes in regexps
+;; Use M-x `relint-current-buffer' to see report.
+(use-package relint
+  :defer t)
+
+
 (provide 'init-elisp)
 
 ;;; init-elisp.el ends here
