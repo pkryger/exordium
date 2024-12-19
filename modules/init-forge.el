@@ -24,8 +24,10 @@
 ;; `emacsql' (a dependency of `forge') requires sqlite3 support.  How the
 ;; support is provided changes with Emacs-29 (i.e., built-in).  See
 ;; https://github.com/magit/emacsql/commit/6401226 for more details.
-(unless (and (fboundp 'sqlite-available-p)
-             (sqlite-available-p))
+(unless (or
+         (bound-and-true-p byte-compile-current-file)
+         (and (fboundp 'sqlite-available-p)
+              (sqlite-available-p)))
  (let ((debug-on-error (if (and debug-on-error (getenv "ci_tests"))
                            (progn
                              (message "Temporarily disable `debug-on-error': `sqlite3-api' cannot be loaded when running in CI")
