@@ -234,6 +234,7 @@ melpa-stable.")
 (eval-and-compile
   (load (file-name-concat (locate-user-emacs-file "modules") "init-require")))
 (exordium-require 'init-force-elpa)
+(exordium-require 'init-vc-checkout)
 
 ;; Pin user extra packages early, in case they are dependencies of some other
 ;; packages that are installed early.
