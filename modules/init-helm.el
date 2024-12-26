@@ -30,7 +30,24 @@
   :diminish
   :custom
   (helm-split-window-default-side 'other)
-  (helm-split-window-other-side-when-one-window 'right)
+
+  (helm-split-width-threshold
+   (when (eq exordium-split-window-preffered-direction
+             'longest)
+     split-width-threshold))
+
+  (helm-split-window-state
+   (if (memq exordium-split-window-preffered-direction
+            '(horizontal longest-horizontal))
+       'horizontal
+     'vertical))
+
+  (helm-split-window-other-side-when-one-window
+   (if (memq exordium-split-window-preffered-direction
+             '(horizontal longest-horizontal))
+       'right
+     'below))
+
   (helm-buffer-details-flag nil)
   (helm-completion-style (cond
                           ((and exordium-helm-fuzzy-match
@@ -107,7 +124,7 @@
              helm-swoop--edit-cancel
              helm-swoop--edit-delete-all-lines)
   :custom
-  (helm-swoop-split-direction 'split-window-horizontally)
+  (helm-swoop-split-direction 'split-window-sensibly)
   :bind
   (("C-S-s" . #'helm-swoop)
    ;; Use similar bindings to `helm-ag-edit'
