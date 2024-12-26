@@ -34,11 +34,7 @@
 (use-package window
   :ensure nil
   :custom
-  (split-window-preferred-direction
-   (if (memq exordium-split-window-preffered-direction
-             '(longest longest-vertical longest-horizontal))
-       'longest
-     exordium-split-window-preffered-direction))
+  (split-window-preferred-direction exordium-split-window-preffered-direction)
   :functions (exordium--window-try-vertical-split
               exordium--window-try-horizontal-split
               exordium-split-window-sensibly)
@@ -61,8 +57,7 @@
       (let ((window (or window (selected-window))))
         (or (if (or
                  (eq exordium-split-window-preffered-direction 'horizontal)
-                 (and (memq exordium-split-window-preffered-direction
-                            '(longest longest-horizontal longest-vertical))
+                 (and (eq exordium-split-window-preffered-direction 'longest)
                       (> (frame-width) (frame-height))))
                 (or (exordium--window-try-horizontal-split window)
                     (exordium--window-try-vertical-split window))
