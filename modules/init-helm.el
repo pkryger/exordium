@@ -36,19 +36,16 @@
   (helm-split-window-default-side 'other)
 
   (helm-split-width-threshold
-   (when (eq exordium-split-window-preffered-direction
-             'longest)
+   (when (eq exordium-split-window-preffered-direction 'longest)
      split-width-threshold))
 
   (helm-split-window-state
-   (if (memq exordium-split-window-preffered-direction
-            '(horizontal longest-horizontal))
+   (if (eq exordium-split-window-preffered-direction 'horizontal)
        'horizontal
      'vertical))
 
   (helm-split-window-other-side-when-one-window
-   (if (memq exordium-split-window-preffered-direction
-             '(horizontal longest-horizontal))
+   (if (eq exordium-split-window-preffered-direction 'horizontal)
        'right
      'below))
 

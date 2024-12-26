@@ -58,10 +58,6 @@ on the frame shape: in landscape orientation it will be like
 `horizontal', but in portrait it will be like `vertical'.
 Basically, the longest of the two dimension is split first.
 
-When set `longest-vertical' or `longest-horizontal' then Helm
-will use vertical/below or horizontal/right respectively for
-window splitting.
-
 If both `split-width-threshold' and `split-height-threshold'
 cannot be satisfied, it will fallback to split vertically."
   :group 'exordium
@@ -71,11 +67,7 @@ cannot be satisfied, it will fallback to split vertically."
           (const :tag "Try to split horizontally first"
                  horizontal)
           (const :tag "Try to split along the longest edge"
-                 longest)
-          (const :tag "Try to split along the longest edge or vertically in Helm"
-                 longest-vertical)
-          (const :tag "Try to split along the longest edge or horizontally in Helm"
-                 longest-horizontal)))
+                 longest)))
 
 (defcustom exordium-line-mode t
   "Whether the current line is highlighted or not."
