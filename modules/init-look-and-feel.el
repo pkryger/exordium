@@ -129,6 +129,7 @@ Set FONT and SIZE if they are passed as arguments."
 
 ;;; Show matching parentheses
 (show-paren-mode t)
+(setq show-paren-context-when-offscreen 'overlay)
 
 ;;; Mouse selection
 (use-package select
