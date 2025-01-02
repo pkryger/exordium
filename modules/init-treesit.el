@@ -8,6 +8,7 @@
   (unless (featurep 'init-require)
     (load (file-name-concat (locate-user-emacs-file "modules") "init-require"))))
 (exordium-require 'init-prefs)
+(exordium-require 'init-git)
 
 (defun exordium--add-forward-ts-hook (mode)
   "Add hook to a ts-MODE that will run hooks from MODE."
@@ -33,10 +34,21 @@
 (if (and (version< "29" emacs-version) (treesit-available-p))
     (progn
       (message "Enabling built-in treesit and external treesit-auto")
+      (use-package git-commit-ts-mode
+        :init
+        (use-package git-commit
+          :ensure magit
+          :defer t
+          :custom
+          (git-commit-major-mode #'git-commit-ts-mode))
+        :defer t)
       (use-package treesit-auto
         :after treesit
         :demand t
+        :autoload (make-treesit-auto-recipe)
         :commands (global-treesit-auto-mode)
+        :defines (treesit-auto-recipe-alist
+                  treesit-auto-mode-langs)
         :custom
         (treesit-auto-install (if (boundp 'treesit-auto-install)
                                   treesit-auto-install
@@ -44,6 +56,16 @@
                                   'prompt))
                               "Disable automatic grammar downloading in CI")
         :config
+        (unless (memq 'gitcommit treesit-auto-langs)
+          (push
+           (make-treesit-auto-recipe
+            :lang 'gitcommit
+            :ts-mode 'git-commit-ts-mode
+            :remap 'git-commit-mode
+            :url "https://github.com/gbprod/tree-sitter-gitcommit"
+            :ext "\\.COMMIT_EDITMSG\\'")
+           treesit-auto-recipe-list)
+          (push 'gitcommit treesit-auto-langs))
         (global-treesit-auto-mode))
 
       (use-package treesit
@@ -65,6 +87,7 @@
                 css
                 dockerfile
                 elixir
+                git-commit
                 go
                 go-mod
                 graphql
