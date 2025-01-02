@@ -33,10 +33,21 @@
 (if (and (version< "29" emacs-version) (treesit-available-p))
     (progn
       (message "Enabling built-in treesit and external treesit-auto")
+      (use-package git-commit-ts-mode
+        :init
+        (use-package git-commit
+          :ensure nil
+          :defer t
+          :custom
+          (git-commit-major-mode #'git-commit-ts-mode))
+        :defer t)
       (use-package treesit-auto
         :after treesit
         :demand t
+        :autoload (make-treesit-auto-recipe)
         :commands (global-treesit-auto-mode)
+        :defines (treesit-auto-recipe-alist
+                  treesit-auto-mode-langs)
         :custom
         (treesit-auto-install (if (boundp 'treesit-auto-install)
                                   treesit-auto-install
@@ -44,6 +55,16 @@
                                   'prompt))
                               "Disable automatic grammar downloading in CI")
         :config
+        (unless (memq 'gitcommit treesit-auto-langs)
+          (push
+           (make-treesit-auto-recipe
+            :lang 'gitcommit
+            :ts-mode 'git-commit-ts-mode
+            :remap 'git-commit-mode
+            :url "https://github.com/gbprod/tree-sitter-gitcommit"
+            :ext "\\.COMMIT_EDITMSG\\'")
+           treesit-auto-recipe-list)
+          (push 'gitcommit treesit-auto-langs))
         (global-treesit-auto-mode))
 
       (use-package treesit
@@ -65,6 +86,7 @@
                 css
                 dockerfile
                 elixir
+                git-commit
                 go
                 go-mod
                 graphql
