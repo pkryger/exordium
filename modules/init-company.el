@@ -64,7 +64,7 @@
          (when (and (or (bound-and-true-p git-commit-mode)
                         (derived-mode-p 'forge-post-mode
                                         'git-commit-elisp-text-mode))
-                    (forge-get-repository 'full)
+                    (forge-get-repository :tracked?)
                     (looking-back
                      (rx "@"
                          (zero-or-one
@@ -87,17 +87,21 @@
            (when (or (save-match-data (looking-at "\\W"))
                      (= (point) (point-max)))
              (cons (or (match-string 1) "") t)))))
-      (candidates (when-let* ((repo (forge-get-repository :tracked?))
-                              ((slot-exists-p repo 'assignees))
-                              ((slot-boundp repo 'assignees))
-                              (assignees (oref repo assignees)))
-                    (cl-remove-if-not
-                     (lambda (assignee)
-                       (string-prefix-p arg assignee))
-                     (mapcar (lambda (assignee)
-                               (propertize (cadr assignee)
-                                           'full-name (caddr assignee)))
-                             assignees))))
+      (candidates (when-let* ((repo (forge-get-repository :tracked?)))
+                    (append
+                     (cl-remove-if-not
+                      (lambda (assignee)
+                        (string-prefix-p arg assignee))
+                      (mapcar (lambda (assignee)
+                                (propertize (cadr assignee)
+                                            'full-name (caddr assignee)))
+                              (ignore-errors (oref repo assignees))))
+                     (cl-remove-if-not
+                      (lambda (team)
+                        (or (string-prefix-p arg team)
+                            (string-prefix-p arg
+                                             (cadr (string-split team "/")))))
+                      (ignore-errors (oref repo teams))))))
       (annotation (when-let* ((assignee (get-text-property 0 'full-name arg)))
                     (format " [%s]" assignee)))))
 
