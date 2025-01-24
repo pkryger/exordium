@@ -57,7 +57,10 @@
   :if (version< "29" emacs-version)
   :defer t
   :commands (company-begin-backend)
-  :functions (exordium--company-conventional-commits-type-p)
+  :autoload (company-doc-buffer
+             company--render-icons-margin)
+  :functions (exordium--company-extra-icons
+              exordium--company-conventional-commits-type-p)
   :init
   (use-package forge-core
     :ensure forge
@@ -66,6 +69,18 @@
 
   (use-package git-commit
     :ensure magit)
+
+
+  (defvar exordium--company-extra-icons-mapping
+    '((issue . "issue-opened-16.svg")
+      (issue-closed . "issue-closed-16.svg")
+      (issue-draft . "issue-draft-16.svg")
+      (pullreq . "git-pull-request-16.svg")
+      (pullreq-merged . "git-merge-16.svg")
+      (pullreq-rejected . "git-pull-request-closed-16.svg")
+      (pullreq-draft . "git-pull-request-draft-16.svg")
+      (person . "person-16.svg")
+      (team . "people-16.svg")))
 
   (defun exordium-company-assignees (command &optional arg &rest _ignored)
     "A `company-mode' backend for assigneees in `forge-mode' repository."
@@ -118,7 +133,130 @@
       (annotation (when-let* ((assignee (get-text-property 0 'full-name arg)))
                     (format " [%s]" assignee)))))
 
-  (defconst exordium--company-conventional-commits-types
+  (defun exordium-company-topics (command &optional arg &rest _ignored)
+    "Backend for issues and pull requests in `forge-mode' repository."
+    (interactive (list 'interactive))
+    (cl-case command
+      (interactive (company-begin-backend 'exordium-company-topics))
+      (prefix
+       (save-match-data
+         (when (and (or (bound-and-true-p git-commit-mode)
+                        (derived-mode-p 'forge-post-mode
+                                        'git-commit-elisp-text-mode))
+                    (forge-get-repository :tracked?)
+                    (looking-back
+                     (rx "#"
+                          (group (repeat 0 10 digit)))
+                     (max (- (point) 11)
+                          (line-beginning-position))))
+           ;; IDK how to match end of a 'symbol' that is equal to an "#" or is
+           ;; equal to "#123" in neither `git-commit-mode' nor
+           ;; `forge-post-mode'. Hence it's handled manually.  The
+           ;; `looking-back' above matches an "#" or an "#123". When it was the
+           ;; latter there was a match in group 1.  Now, check if this is at
+           ;; the very end of the "#" or "#123".  Note that "#<point>#" also
+           ;; matches. Probably a few other characters, substituting the second
+           ;; "#" in latter pattern, would also give a positive result. Yet, in
+           ;; such a case the `match' is "", so that's all fine - all
+           ;; candidates will be shown.
+           (when (or (save-match-data (looking-at "\\W"))
+                     (= (point) (point-max)))
+             (cons (or (match-string 1) "") t)))))
+      (candidates (when-let* ((repo (forge-get-repository :tracked?)))
+                    (mapcar
+                     (lambda (topic)
+                       (propertize
+                        (number-to-string (oref topic number))
+                        'title (oref topic title)
+                        'id (oref topic id)
+                        'exordium-kind (pcase (list
+                                               (eieio-object-class topic)
+                                               (oref topic state)
+                                               (when (slot-exists-p topic 'draft-p)
+                                                 (oref topic draft-p)))
+                                         ('(forge-issue open nil) 'issue)
+                                         ('(forge-issue open t) 'issue-draft)
+                                         (`(forge-issue ,_ ,_) 'issue-closed)
+                                         ('(forge-pullreq open nil) 'pullreq)
+                                         ('(forge-pullreq open t) 'pullreq-draft)
+                                         (`(forge-pullreq merged ,_) 'pullreq-merged)
+                                         (`(forge-pullreq ,_ ,_) 'pullreq-rejected))))
+                            (cl-remove-if-not
+                             (lambda (topic)
+                               (string-prefix-p arg (number-to-string
+                                                     (oref topic number))))
+                             (forge--list-topics
+                              (forge--topics-spec :type 'topic
+                                                  :active nil
+                                                  :state nil
+                                                  :order 'recently-updated)
+                              repo)))))
+      (kind (get-text-property 0 'exordium-kind arg))
+      (annotation (when-let* ((title (get-text-property 0 'title arg)))
+                    (format " [%s]"  title)))
+      (doc-buffer (when-let* ((id (get-text-property 0 'id arg))
+                              (topic (forge-get-topic id))
+                              (repo (forge-get-repository topic))
+                              (magit-display-buffer-noselect t)
+                              (buffer (company-doc-buffer)))
+                    ;; Do like `forge-topic-setup-buffer' does, except:
+                    ;; - ensure buffer is not selected,
+                    ;; - use `company-doc-buffer',
+                    ;; - don't mark topics as read,
+                    ;; - ensure `buffer-read-only' is nil.
+                    (unwind-protect
+                        (magit-setup-buffer-internal
+                         (if (forge-issue-p topic)
+                             #'forge-issue-mode
+                           #'forge-pullreq-mode)
+                         t
+                         `((forge-buffer-topic ,topic))
+                         buffer
+                         (or (forge-get-worktree repo) "/"))
+                      (with-current-buffer buffer
+                        (setq buffer-read-only nil)))))
+      (quickhelp-string (when-let* ((id (get-text-property 0 'id arg))
+                                    (topic (forge-get-topic id)))
+                          (concat
+                           (exordium--company-extra-icons
+                            (lambda (&rest _)
+                              (if-let* ((kind (assq
+                                               (get-text-property 0 'exordium-kind)
+                                               company-text-icons-mapping)))
+                                  (propertize (format "[%s] " kind)
+                                              'face 'italic)
+                                ""))
+                            arg)
+                           (propertize (oref topic title)
+                                       'face 'bold)
+                           "\n\n"
+                           (oref topic body))))
+      (sorted t)))
+
+  (defun exordium--company-extra-icons (orig-fun &rest args)
+    "If (car ARGS) has `exordium-kind' try to render Exordium icon for it."
+    (if-let* (((display-graphic-p))
+              ((image-type-available-p 'svg))
+              (candidate (car args))
+              ((get-text-property 0 'exordium-kind candidate))
+              ;; Octicons delivered with Exordium are slightly larger than
+              ;; icons delivered with `company'. Make them appear a bit smaller
+              (icon (let ((company-icon-size
+                           (pcase company-icon-size
+                             ((and (pred numberp) value)
+                              (truncate (fround (* .9 value))))
+                             (`(auto-scale . ,value)
+                              (cons 'auto-scale
+                                    (truncate (fround (* .9 value))))))))
+                      (company--render-icons-margin
+                       exordium--company-extra-icons-mapping
+                       (expand-file-name "company-icons" user-emacs-directory)
+                       candidate
+                       (cadr args)))))
+        icon
+      (apply orig-fun args)))
+
+  (defconst exordium--company-conventional-commits-types
     (list
      ;; From Conventional Commits: https://www.conventionalcommits.org
      ;; and Angular: https://github.com/angular/angular/blob/22b96b9/CONTRIBUTING.md#type
@@ -280,9 +418,22 @@ See https://www.conventionalcommits.org for details."
          (format " [%s]" annotation)))))
 
   :config
-  ;; This is block is deferred , so this backed will end up first
+  ;; This is block is deferred , so these backends will end up first
   (add-to-list 'company-backends 'exordium-company-assignees)
-  (add-to-list 'company-backends 'exordium-company-conventional-commits))
+  (add-to-list 'company-backends 'exordium-company-topics)
+  (add-to-list 'company-backends 'exordium-company-conventional-commits)
+  (dolist (mapping '((issue "i")
+                     (issue-closed "c")
+                     (issue-draft "d")
+                     (pullreq "p")
+                     (pullreq-merged "m")
+                     (pullreq-rejected "r")
+                     (pullreq-draft  "d")
+                     (person "p")
+                     (team "t")))
+    (add-to-list 'company-text-icons-mapping mapping))
+  (advice-add 'company-detect-icons-margin
+              :around #'exordium--company-extra-icons))
 
 (use-package company-statistics
   :after (company)
