@@ -11,6 +11,7 @@ The source code is in these directories:
 * *extensions*: third party packages not present in melpa, included in source
   code.
 * *snippets*: snippet files for YASnippets.
+* *company-icons*: icon files for Exordium provided Comany backends.
 
 Note: *vendor* should be removed (code should move to *extensions*).
 
