@@ -122,14 +122,19 @@
                         (string-prefix-p arg assignee))
                       (mapcar (lambda (assignee)
                                 (propertize (cadr assignee)
-                                            'full-name (caddr assignee)))
+                                            'full-name (caddr assignee)
+                                            'exordium-kind 'person))
                               (ignore-errors (oref repo assignees))))
                      (cl-remove-if-not
                       (lambda (team)
                         (or (string-prefix-p arg team)
                             (string-prefix-p arg
                                              (cadr (string-split team "/")))))
-                      (ignore-errors (oref repo teams))))))
+                      (mapcar (lambda (team)
+                                (propertize team
+                                            'exordium-kind 'team))
+                              (ignore-errors (oref repo teams)))))))
+      (kind (get-text-property 0 'exordium-kind arg))
       (annotation (when-let* ((assignee (get-text-property 0 'full-name arg)))
                     (format " [%s]" assignee)))))
 
