@@ -45,7 +45,7 @@
        #'split-window-sensibly
      #'helm-split-window-default-fn))
 
-  (helm-buffer-details-flag nil)
+  (helm-buffer-max-length nil)
   (helm-completion-style (cond
                           ((and exordium-helm-fuzzy-match
                                 (eq exordium-helm-completion-style 'helm))
