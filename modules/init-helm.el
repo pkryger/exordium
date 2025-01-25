@@ -45,6 +45,8 @@
        #'split-window-sensibly
      #'helm-split-window-default-fn))
 
+  (helm-buffer-max-lenth (truncate (fround (* split-width-threshold 0.3))))
+
   (helm-buffer-details-flag nil)
   (helm-completion-style (cond
                           ((and exordium-helm-fuzzy-match
