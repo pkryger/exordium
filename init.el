@@ -241,6 +241,21 @@ melpa-stable.")
 (exordium-require 'init-force-elpa)
 (exordium-require 'init-vc-checkout)
 
+;; Make sure summaries are generated for `package-vc-install' (and co.)
+;; functions, see https://debbugs.gnu.org/cgi/bugreport.cgi?bug=76065
+(defun exordium--package-vc-erase-summary (args)
+  "Set summary slot in (car ARGS) to nil."
+  (when-let* ((pkg-desc (car args))
+              ((package-desc-p pkg-desc))
+              ((equal package--default-summary (oref pkg-desc summary))))
+    (oset pkg-desc summary nil))
+  args)
+
+(when (and (require 'package-vc nil t) ;; Since Emacs-29
+           (version< emacs-version "31")) ;; Until Emacs-31
+  (advice-add 'package-vc--generate-description-file
+              :filter-args #'exordium--package-vc-erase-summary))
+
 ;; Pin user extra packages early, in case they are dependencies of some other
 ;; packages that are installed early.
 (dolist (pkg exordium-extra-pinned)
