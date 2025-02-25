@@ -41,6 +41,8 @@
   (("README\\.md\\'" . gfm-mode)
    ("\\.md\\'" . markdown-mode)
    ("\\.markdown\\'" . markdown-mode))
+  :custom
+  (markdown-fontify-code-blocks-natively t)
   :hook
   (markdown-mode . exordium-electric-mode-add-backtick)
   :config
