@@ -276,10 +276,20 @@ switch(val) {
 (setq tab-stop-list
       '(4 8 12 16 20 24 28 32 36 40 44 48 52 56 60 64 68 72 76 80))
 
-;; Allow tab in Makefile
+;; Allow tab in Makefile, and show it
 (use-package make-mode
-  :ensure nil
-  :hook (makefile-mode . indent-tabs-mode))
+  :defer t
+  :init
+  (use-package whitespace
+    :defer t
+    :autoload (whitespace-turn-on)
+    :init
+    (defun exordium-makefile-whitespace-mode ()
+      "Turn on `whitespace-mode' that only visualises tabs and end of file."
+      (let ((whitespace-style '(face tabs tab-mark missing-newline-at-eof)))
+        (whitespace-turn-on))))
+  :hook ((makefile-mode . indent-tabs-mode)
+         (makefile-mode . exordium-makefile-whitespace-mode)))
 
 ;;; Insert class header
 
