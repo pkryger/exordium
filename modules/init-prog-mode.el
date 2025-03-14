@@ -11,6 +11,7 @@
 
 (require 'newcomment)
 (require 'prog-mode)
+(require 'whitespace)
 
 (use-package cmake-mode
   :defer t)
@@ -77,6 +78,39 @@
 
 (when exordium-font-lock
   (add-hook 'prog-mode-hook #'exordium--add-keywords-for-todos))
+
+
+(defvar diminished-mode-alist)
+
+(define-minor-mode exordium-whitespace-tabs-mode
+  "Toggle tabs visualisation.
+
+Use `whitespace-newline-mode' only for NEWLINE visualization
+exclusively.  For other visualizations, including NEWLINE
+visualization together with (HARD) SPACEs and/or TABs, please,
+use `whitespace-mode'."
+  :lighter    " ts"
+  :init-value nil
+  :global     nil
+  :group      'exordium
+  (let ((whitespace-style '(face tabs tab-mark)))
+    (whitespace-mode (if exordium-whitespace-tabs-mode 1 -1)))
+  (setq exordium-whitespace-tabs-mode whitespace-mode)
+  (if exordium-whitespace-tabs-mode
+      (progn
+        (make-local-variable 'diminished-mode-alist)
+        (diminish 'whitespace-mode))
+    (when (and (local-variable-p 'diminished-mode-alist)
+               (equal (default-value 'diminished-mode-alist)
+                      (cl-remove-if (lambda (diminished)
+                                      (eq (car diminished) 'whitespace-mode))
+                                    diminished-mode-alist)))
+      (kill-local-variable 'diminished-mode-alist))))
+
+(use-package make-mode
+  :defer t
+  :init
+  :hook (makefile-mode . exordium-whitespace-tabs-mode))
 
 (provide 'init-prog-mode)
 
