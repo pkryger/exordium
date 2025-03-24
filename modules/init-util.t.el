@@ -233,7 +233,45 @@ Return the BODY return value"
       (should (string= expected
                        (exordium-flip-string-test-case-output test-case))))))
 
+(ert-deftest test-exordium-sort-words-in-region-1 ()
+  (let (beg end)
+    (with-temp-buffer
+      (insert "don't sort this:")
+      (setq beg (point))
+      (insert "foo, bar, baz qux")
+      (setq end (point))
+      (insert ":and this")
+      (set-mark beg)
+      (goto-char end)
+      (exordium-sort-words-in-region beg end)
+      (should (equal (buffer-string)
+                     "don't sort this:bar, baz qux, foo:and this")))))
 
+(ert-deftest test-exordium-sort-words-in-region-2 ()
+  (let (beg end)
+    (with-temp-buffer
+      (insert "don't sort this:")
+      (setq beg (point))
+      (insert "foo, bar, baz qux")
+      (setq end (point))
+      (insert ":and this")
+      (set-mark beg)
+      (goto-char end)
+      (exordium-sort-words-in-region beg end 'reverse)
+      (should (equal (buffer-string)
+                     "don't sort this:foo, baz qux, bar:and this")))))
+
+(ert-deftest test-exordium-sort-words-in-region-3 ()
+  (let (beg end)
+    (with-temp-buffer
+      (insert "don't sort this:")
+      (setq beg (point))
+      (insert "foo, bar, baz qux")
+      (setq end (point))
+      (insert ":and this")
+      (should-error (exordium-sort-words-in-region beg end 'reverse)))))
+
+
 (ert-deftest test-exordium--scratch-kill-buffer-query-function-1 ()
   (let ((buffer (with-current-buffer (scratch)
                   (current-buffer))))
