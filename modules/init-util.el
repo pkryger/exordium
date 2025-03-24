@@ -8,6 +8,7 @@
 ;; * M-x `insert-current-time' at cursor position
 ;; * M-x `insert-current-date-time' at cursor position
 ;; * M-x `exordium-flip-string-quotes' change quotes between ?\' and ?\"
+;; * M-x `exordium-sort-words-in-region' sort words in active region
 ;;
 ;; Keys:
 ;; -------------- -------------------------------------------------------
@@ -632,6 +633,29 @@ Otherwise escape quotes in the inner string (rationalising escaping)."
           (forward-char))
         (delete-char quote-length)
         (insert-char new-quote quote-length)))))
+
+
+;; Inspired by Bart Spiers and Piotr Kazanowski's:
+;; https://pkaznowski.gitlab.io/blog/post/sort-words-in-region/
+
+(defun exordium-sort-words-in-region (beg end &optional reversed)
+                                        ; checkdoc-params: (beg end)
+  "Sort comma separated strings in ascending order in active region.
+
+With prefix arg REVERSED sort in descending order."
+  (interactive  "r\nP")
+  (unless (region-active-p)
+    (user-error "No active region to sort!"))
+  (let ((sorted (string-join
+                 (sort
+                  (mapcar #'string-trim
+                          (string-split
+                           (buffer-substring-no-properties beg end)
+                           ","))
+                  (if reversed #'string> #'string<))
+                 ", ")))
+    (delete-region beg end)
+    (insert sorted)))
 
 
 ;; Find obsolete cl aliases
