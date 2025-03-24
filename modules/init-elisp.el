@@ -13,6 +13,7 @@
   (unless (featurep 'init-require)
     (load (file-name-concat (locate-user-emacs-file "modules") "init-require"))))
 (exordium-require 'init-helm)
+(exordium-require 'init-prefs)
 
 (when exordium-help-extensions
   (exordium-require 'init-help))
@@ -94,6 +95,51 @@ bug (page break lines wrap around)."
 ;; Use M-x `relint-current-buffer' to see report.
 (use-package relint
   :defer t)
+
+
+(use-package nadvice
+  :demand nil
+  :functions (exordium--advice-remove)
+  :init
+  (defun exordium--advice-remove (&rest args)
+    "Remove FUNCTION advice form SYMBOL."
+    (interactive
+     ;; From Emacs-30 definition of `advice-remove'
+     (let* ((pred (lambda (sym) (advice--p (advice--symbol-function sym))))
+            (default (when-let* ((f (function-called-at-point))
+                                 ((funcall pred f)))
+                       (symbol-name f)))
+            (prompt (format-prompt "Remove advice from function" default))
+            (symbol (intern (completing-read prompt obarray pred t nil nil default)))
+            advices)
+       (advice-mapc (lambda (f p)
+                      (let ((k (or (alist-get 'name p) f)))
+                        (push (cons
+                               (prin1-to-string k)
+                               k)
+                              advices)))
+                    symbol)
+       (list symbol (cdr (assoc-string
+                          (completing-read "Advice to remove: " advices nil t)
+                          advices)))))
+    (car args))
+
+  (defun exordium-advice-remove-all (symbol)
+    "Remove all advices from SYMBOL."
+    ;; From Emacs-30 definition of `advice-remove'
+    (interactive
+     (let* ((pred (lambda (sym) (advice--p (advice--symbol-function sym))))
+            (default (when-let* ((f (function-called-at-point))
+                                 ((funcall pred f)))
+                       (symbol-name f)))
+            (prompt (format-prompt "Remove advice from function" default)))
+       (list (intern (completing-read prompt obarray pred t nil nil default)))))
+    (advice-mapc (lambda (advice _props) (advice-remove symbol advice)) symbol))
+
+  :config
+  (when (version< emacs-version "30")
+    (advice-add 'advice-remove
+                :filter-args #'exordium--advice-remove)))
 
 
 (provide 'init-elisp)
