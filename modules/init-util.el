@@ -9,6 +9,10 @@
 ;; * M-x `insert-current-date-time' at cursor position
 ;; * M-x `exordium-flip-string-quotes' change quotes between ?\' and ?\"
 ;; * M-x `exordium-sort-words-in-region' sort words in active region
+;; * M-x `exordium-add-number-grouping' add grouping to a number
+;; * M-x `exordium-add-numbers-grouping' add grouping to numbers
+;; * M-x `exordium-remove-number-grouping' remove grouping from a number
+;; * M-x `exordium-remove-numbers-grouping' remove grouping from numbers
 ;;
 ;; Keys:
 ;; -------------- -------------------------------------------------------
@@ -656,6 +660,123 @@ With prefix arg REVERSED sort in descending order."
                  ", ")))
     (delete-region beg end)
     (insert sorted)))
+
+
+(defun exordium--number-grouping-args (read-number)
+  "Read args for interactive call of number grouping functions.
+When READ-NUMBER is non-nil it will prompt for number using it as
+a function if region is not active."
+  (list
+   (if (region-active-p)
+       (buffer-substring-no-properties (region-beginning)
+                                       (region-end))
+     (if read-number
+         (funcall read-number "Number: ")
+       (user-error "Region must be active")))
+   (if current-prefix-arg
+       (read-string "Separator: ")
+     ",")
+   'interactive))
+
+(defun exordium-add-number-grouping (number &optional separator interactive)
+                                        ; checkdoc-params: (interactive)
+  "Add commas to NUMBER and return it as a grouped string.
+Optional SEPARATOR is a string to use to separate groups.  It
+defaults to a comma.
+
+When called interactively then add SEPARATOR to a number in
+active region, replacing it if region is active.  Otherwise, if
+region is not active ask for a number and insert a grouped number
+at point.  When called with a prefix arg ask for SEPARATOR."
+  ;; Slightly modified version of
+  ;; https://www.emacswiki.org/emacs/AddCommasToNumbers
+  (interactive (exordium--number-grouping-args #'read-number))
+  (let ((number (if (stringp number)
+                    number
+                  (number-to-string number)))
+        (separator (pcase separator
+                     ((pred integerp) (format "%c" separator))
+                     ((pred stringp) separator)
+                     ((pred null) ","))))
+    (save-match-data
+      (while (string-match "\\(.*[0-9]\\)\\([0-9][0-9][0-9].*\\)" number)
+        (setq number (concat (match-string 1 number)
+                             separator
+                             (match-string 2 number)))))
+    (when interactive
+      (when (region-active-p)
+        (delete-region (region-beginning) (region-end)))
+      (insert number))
+    number))
+
+(defun exordium-add-numbers-grouping (numbers &optional separator interactive)
+                                        ; checkdoc-params: (interactive)
+  "Add commas to NUMBERS and return them as a list of strings.
+Optional SEPARATOR is a string to use to separate groups.  It
+defaults to a comma.
+
+When called interactively then add SEPARATOR to numbers in active
+region, replacing them.  Each line in the region is assumed to be
+a number.  When called with a prefix arg ask for SEPARATOR."
+  (interactive
+      (pcase-let ((`(,numbers ,separator ,interactive)
+                (exordium--number-grouping-args nil)))
+        (list (split-string numbers "\n" t) separator interactive)))
+  (let ((numbers (mapcar (lambda (number)
+                           (exordium-add-number-grouping number separator))
+                         numbers)))
+    (when interactive
+      (delete-region (region-beginning) (region-end))
+      (dolist (number numbers)
+        (insert number "\n")))
+    numbers))
+
+(defun exordium-remove-number-grouping (number &optional separator interactive)
+                                        ; checkdoc-params: (interactive)
+  "Remove commas from a grouped NUMBER (a string) and return it as a number.
+Optional SEPARATOR is a string to use to separate groups.  It
+defaults to a comma.
+
+When called interactively then remove SEPARATOR from a grouped
+number in active region, replacing it if region is active.
+Otherwise, if region is not active ask for a grouped number and
+insert number with SEPARATOR removed at point.  When called with
+a prefix arg ask for SEPARATOR."
+  (interactive (exordium--number-grouping-args #'read-string))
+  (let* ((separator (pcase separator
+                      ((pred integerp) (format "%c" separator))
+                      ((pred stringp) separator)
+                      ((pred null) ",")))
+         (number (apply #'concat
+                        (string-split number (rx-to-string separator) t))))
+    (when interactive
+      (when (region-active-p)
+        (delete-region (region-beginning) (region-end)))
+      (insert number))
+    (string-to-number number)))
+
+(defun exordium-remove-numbers-grouping (numbers &optional separator interactive)
+                                        ; checkdoc-params: (interactive)
+  "Remove commas from grouped NUMBERS and return them a list of numbers.
+Optional SEPARATOR is a string to use to separate groups.  It
+defaults to a comma.
+
+When called interactively then remove SEPARATOR from a grouped
+numbers in active region, replacing them.  Each line in the region
+is assumed to be a number.  When called with a prefix arg ask for
+SEPARATOR."
+  (interactive
+   (pcase-let ((`(,numbers ,separator ,interactive)
+                (exordium--number-grouping-args nil)))
+     (list (split-string numbers "\n" t) separator interactive)))
+  (let ((numbers (mapcar (lambda (number)
+                           (exordium-remove-number-grouping number separator))
+                         numbers)))
+    (when interactive
+      (delete-region (region-beginning) (region-end))
+      (dolist (number numbers)
+        (insert (format "%s\n" number))))
+    numbers))
 
 
 ;; Find obsolete cl aliases
