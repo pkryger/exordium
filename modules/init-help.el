@@ -145,12 +145,20 @@ Otherwise pop to buffer (presumably in a new window)."
    ("C-c C-o" . #'exordium-browse-url-at-point))
   :config
   (require 'helm-mode)
-  (dolist (fun '(helpful-callable
+  (dolist (fun '(advice-remove
+                 cancel-debug-on-entry
+                 cancel-debug-on-variable-change
+                 cancel-debug-watch
+                 debug-on-entry
+                 debug-on-variable-change
+                 debug-watch
+                 exordium-advice-remove-all
+                 helpful-callable
                  helpful-command
                  helpful-function
                  helpful-macro
-                 helpful-variable
-                 helpful-symbol))
+                 helpful-symbol
+                 helpful-variable))
     (add-to-list 'helm-completing-read-handlers-alist
                  (cons fun #'exordium--helm-helpful-completing-read))))
 
