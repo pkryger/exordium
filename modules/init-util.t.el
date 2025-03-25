@@ -272,6 +272,136 @@ Return the BODY return value"
       (should-error (exordium-sort-words-in-region beg end 'reverse)))))
 
 
+(ert-deftest test-exordium--number-grouping-args-1 ()
+  (with-temp-buffer
+    (insert "123456")
+    (should-error (exordium--number-grouping-args nil))))
+
+(ert-deftest test-exordium--number-grouping-args-2 ()
+  (with-temp-buffer
+    (insert "123456")
+    (set-mark (point-min))
+    (should (equal '("123456" "," interactive)
+                   (exordium--number-grouping-args nil)))))
+
+(ert-deftest test-exordium--number-grouping-args-3 ()
+  (with-temp-buffer
+    (insert "123456")
+    (set-mark (point-min))
+    (should (equal '("123456" "," interactive)
+                   (exordium--number-grouping-args #'read-number)))))
+
+(ert-deftest test-exordium--number-grouping-args-4 ()
+  (mocklet (((read-string "Number: ") => "654321"))
+    (with-temp-buffer
+    (insert "123456")
+    (should (equal '("654321" "," interactive)
+                   (exordium--number-grouping-args #'read-string))))))
+
+(ert-deftest test-exordium--number-grouping-args-5 ()
+  (mocklet (((read-number "Number: ") => 654321)
+            ((read-string "Separator: ") => "'"))
+    (let ((current-prefix-arg 4))
+      (with-temp-buffer
+        (insert "123456")
+        (should (equal '(654321 "'" interactive)
+                       (exordium--number-grouping-args #'read-number)))))))
+
+(ert-deftest test-exordium-add-number-grouping-1 ()
+  (should (equal "123,456"
+                 (exordium-add-number-grouping 123456)))
+  (should (equal "123,456,789.00"
+                 (exordium-add-number-grouping "123456789.00" ",")))
+  (should (equal "1'234"
+                 (exordium-add-number-grouping "1234" ?'))))
+
+(ert-deftest test-exordium-add-number-grouping-2 ()
+  (let (beg end)
+    (with-temp-buffer
+      (insert "7890:")
+      (setq beg (point))
+      (insert "123456")
+      (setq end (point))
+      (insert ":7890")
+      (set-mark beg)
+      (goto-char end)
+      (should (equal "123,456"
+                     (call-interactively #'exordium-add-number-grouping)))
+      (should (equal "7890:123,456:7890"
+                     (buffer-string))))))
+
+(ert-deftest test-exordium-add-number-grouping-3 ()
+  (mocklet (((read-number "Number: ") => 123456))
+    (with-temp-buffer
+      (insert "7890:")
+      (should (equal "123,456"
+                     (call-interactively #'exordium-add-number-grouping)))
+      (should (equal "7890:123,456"
+                     (buffer-string))))))
+
+(ert-deftest test-exordium-add-numbers-grouping-1 ()
+  (should (equal '("1,234" "5,678" "9,012.3")
+                 (exordium-add-numbers-grouping '(1234 "5678" "9012.3"))))
+  (should (equal '("1'234" "5'678" "9'012.3")
+                 (exordium-add-numbers-grouping '(1234 "5678" "9012.3") "'"))))
+
+(ert-deftest test-exordium-add-numbers-grouping-2 ()
+  (with-temp-buffer
+    (insert "1234\n5678.9\n")
+    (set-mark (point-min))
+    (should (equal '("1,234" "5,678.9")
+                   (call-interactively #'exordium-add-numbers-grouping)))
+    (should (equal "1,234\n5,678.9\n"
+                   (buffer-string)))))
+
+(ert-deftest test-exordium-remove-number-grouping-1 ()
+  (should (equal 123456
+                 (exordium-remove-number-grouping "123,456")))
+  (should (equal 123456789.0
+                 (exordium-remove-number-grouping "123,456,789.0" ",")))
+  (should (equal 1234
+                 (exordium-remove-number-grouping "1'234" ?'))))
+
+(ert-deftest test-exordium-remove-number-grouping-2 ()
+  (let (beg end)
+    (with-temp-buffer
+      (insert "7890:")
+      (setq beg (point))
+      (insert "123,456")
+      (setq end (point))
+      (insert ":7890")
+      (set-mark beg)
+      (goto-char end)
+      (should (equal 123456
+                     (call-interactively #'exordium-remove-number-grouping)))
+      (should (equal "7890:123456:7890"
+                     (buffer-string))))))
+
+(ert-deftest test-exordium-remove-number-grouping-3 ()
+  (mocklet (((read-string "Number: ") => "123,456"))
+    (with-temp-buffer
+      (insert "7890:")
+      (should (equal 123456
+                     (call-interactively #'exordium-remove-number-grouping)))
+      (should (equal "7890:123456"
+                     (buffer-string))))))
+
+(ert-deftest test-exordium-remove-numbers-grouping-1 ()
+  (should (equal '(1234 5678 9012.3)
+                 (exordium-remove-numbers-grouping '("1,234" "5,678" "9,012.3"))))
+  (should (equal '(1234 5678 9012.3)
+                 (exordium-remove-numbers-grouping '("1'234" "5'678" "9'012.3") "'"))))
+
+(ert-deftest test-exordium-remove-numbers-grouping-2 ()
+  (with-temp-buffer
+    (insert "1,234\n5,678.9\n")
+    (set-mark (point-min))
+    (should (equal '(1234 5678.9)
+                   (call-interactively #'exordium-remove-numbers-grouping)))
+    (should (equal "1234\n5678.9\n"
+                   (buffer-string)))))
+
+
 (ert-deftest test-exordium--scratch-kill-buffer-query-function-1 ()
   (let ((buffer (with-current-buffer (scratch)
                   (current-buffer))))
