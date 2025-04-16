@@ -142,6 +142,12 @@ bug (page break lines wrap around)."
                 :filter-args #'exordium--advice-remove)))
 
 
+(use-package edebug
+  :demand nil
+  :hook
+  (edebug-mode . pulse-momentary-highlight-one-line))
+
+
 (provide 'init-elisp)
 
 ;;; init-elisp.el ends here
