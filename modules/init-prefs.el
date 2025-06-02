@@ -249,6 +249,16 @@ displayed by the current font default will be used."
   :type  '(alist :key-type (symbol :tag "Symbol")
                  :value-type (repeat (character :tag "Dashes character"))))
 
+(defcustom exordium-markdown-nobreak-inline-code-predicate '(or (derived-mode . markdown-mode)
+                                                            (derived-mode . markdown-ts-mode))
+  "Don't break inline code when filling paragraphs in `markdown-mode'.
+
+The predicate and point where a link is to be split are passed as
+arguments CONDITION and ARG respectively to `buffer-match-p', which see."
+  :type 'buffer-predicate
+  :group 'exordium
+  :safe #'booleanp)
+
 (defcustom exordium-highlight-symbol nil
   "Whether occurrences of symbol under point gets highlighted after a few seconds."
   :group 'exordium
