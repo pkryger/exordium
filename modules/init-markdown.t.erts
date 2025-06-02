@@ -1,0 +1,257 @@
+# -*- fill-column: 25 -*-
+
+Name: short link
+=-=
+Lorem ipsum [short](https://gnu.org)
+=-=
+Lorem ipsum [short](https://gnu.org)
+=-=-=
+
+Name: short link with stuff after
+=-=
+Lorem [short](https://gnu.org) ipsum dolor sit
+=-=
+Lorem [short](https://gnu.org) ipsum dolor
+sit
+=-=-=
+
+Name: splittable link
+=-=
+Lorem ipsum dolor [split here](https://gnu.org)
+=-=
+Lorem ipsum dolor [split
+here](https://gnu.org)
+=-=-=
+
+Name: splittable link with stuff after
+=-=
+Lorem ipsum dolor [split here](https://gnu.org) sit amet
+=-=
+Lorem ipsum dolor [split
+here](https://gnu.org) sit amet
+=-=-=
+
+Name: splittable link with more stuff after
+=-=
+Lorem ipsum dolor [split here](https://gnu.org) sit amet, consectetur
+=-=
+Lorem ipsum dolor [split
+here](https://gnu.org) sit amet,
+consectetur
+=-=-=
+
+Name: two splittable links same line
+=-=
+Lorem [one 1](https://gnu.org) [two 2](https://fsf.org)
+=-=
+Lorem [one 1](https://gnu.org) [two 2](https://fsf.org)
+=-=-=
+
+Name: two splittable links same line with stuff after
+=-=
+Lorem [one 1](https://gnu.org) [two 2](https://fsf.org) ipsum
+=-=
+Lorem [one 1](https://gnu.org) [two 2](https://fsf.org) ipsum
+=-=-=
+
+Name: two splittable links same line with more stuff after
+=-=
+Lorem [one 1](https://gnu.org) [two 2](https://fsf.org) ipsum dolor
+=-=
+Lorem [one 1](https://gnu.org) [two 2](https://fsf.org) ipsum
+dolor
+=-=-=
+
+Name: two splittable links different lines
+=-=
+Lorem [one 1](https://gnu.org) ipsum dolor sit amet, [two 2](https://fsf.org)
+=-=
+Lorem [one 1](https://gnu.org) ipsum dolor sit
+amet, [two 2](https://fsf.org)
+=-=-=
+
+Name: two splittable links different lines with stuff after
+=-=
+Lorem [one 1](https://gnu.org) ipsum dolor sit amet, [two 2](https://fsf.org), consectetur adipiscing
+=-=
+Lorem [one 1](https://gnu.org) ipsum dolor sit
+amet, [two 2](https://fsf.org), consectetur
+adipiscing
+=-=-=
+
+Name: ridiculously long link
+=-=
+Lorem [ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua](https://en.wikipedia.org/wiki/Lorem_ipsum)
+=-=
+Lorem [ipsum dolor sit
+amet, consectetur
+adipiscing elit, sed do
+eiusmod tempor incididunt
+ut labore et dolore magna
+aliqua](https://en.wikipedia.org/wiki/Lorem_ipsum)
+=-=-=
+
+Name: ridiculously long link with stuff after
+=-=
+Lorem [ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua](https://en.wikipedia.org/wiki/Lorem_ipsum). Ut enim ad
+=-=
+Lorem [ipsum dolor sit
+amet, consectetur
+adipiscing elit, sed do
+eiusmod tempor incididunt
+ut labore et dolore magna
+aliqua](https://en.wikipedia.org/wiki/Lorem_ipsum). Ut enim ad
+=-=-=
+
+Name: ridiculously long link with more stuff after
+=-=
+Lorem [ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua](https://en.wikipedia.org/wiki/Lorem_ipsum). Ut enim ad minim veniam,
+=-=
+Lorem [ipsum dolor sit
+amet, consectetur
+adipiscing elit, sed do
+eiusmod tempor incididunt
+ut labore et dolore magna
+aliqua](https://en.wikipedia.org/wiki/Lorem_ipsum). Ut enim ad minim
+veniam,
+=-=-=
+
+Name: bullet short link
+=-=
+* Lorem ipsum [short](https://gnu.org)
+=-=
+* Lorem ipsum [short](https://gnu.org)
+=-=-=
+
+Name: bullet short link with stuff after
+=-=
+* Lorem [short](https://gnu.org) ipsum dolor sit
+=-=
+* Lorem [short](https://gnu.org) ipsum dolor
+  sit
+=-=-=
+
+Name: bullet splittable link
+=-=
+* Lorem ipsum dolor [split here](https://gnu.org)
+=-=
+* Lorem ipsum dolor [split
+  here](https://gnu.org)
+=-=-=
+
+Name: bullet splittable link with stuff after
+=-=
+* Lorem ipsum dolor [split here](https://gnu.org) sit amet
+=-=
+* Lorem ipsum dolor [split
+  here](https://gnu.org) sit amet
+=-=-=
+
+Name: bullet splittable link with more stuff after
+=-=
+* Lorem ipsum dolor [split here](https://gnu.org) sit amet, consectetur
+=-=
+* Lorem ipsum dolor [split
+  here](https://gnu.org) sit amet,
+  consectetur
+=-=-=
+
+Name: bullet two splittable links same line
+=-=
+* Lorem [one 1](https://gnu.org) [two 2](https://fsf.org)
+=-=
+* Lorem [one 1](https://gnu.org) [two 2](https://fsf.org)
+=-=-=
+
+Name: bullet two splittable links same line with stuff after
+=-=
+* Lorem [one 1](https://gnu.org) [two 2](https://fsf.org) ipsum
+=-=
+* Lorem [one 1](https://gnu.org) [two 2](https://fsf.org) ipsum
+=-=-=
+
+Name: bullet two splittable links same line with more stuff after
+=-=
+* Lorem [one 1](https://gnu.org) [two 2](https://fsf.org) ipsum dolor
+=-=
+* Lorem [one 1](https://gnu.org) [two 2](https://fsf.org) ipsum
+  dolor
+=-=-=
+
+Name: bullet two splittable links different lines
+=-=
+* Lorem [one 1](https://gnu.org) ipsum dolor sit amet, [two 2](https://fsf.org)
+=-=
+* Lorem [one 1](https://gnu.org) ipsum dolor
+  sit amet, [two 2](https://fsf.org)
+=-=-=
+
+Name: bullet two splittable links different lines with stuff after
+=-=
+* Lorem [one 1](https://gnu.org) ipsum dolor sit amet, [two 2](https://fsf.org), consectetur adipiscing
+=-=
+* Lorem [one 1](https://gnu.org) ipsum dolor
+  sit amet, [two 2](https://fsf.org),
+  consectetur adipiscing
+=-=-=
+
+Name: bullet ridiculously long link
+=-=
+* Lorem [ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua](https://en.wikipedia.org/wiki/Lorem_ipsum)
+=-=
+* Lorem [ipsum dolor sit
+  amet, consectetur
+  adipiscing elit, sed do
+  eiusmod tempor
+  incididunt ut labore et
+  dolore magna aliqua](https://en.wikipedia.org/wiki/Lorem_ipsum)
+=-=-=
+
+Name: bullet ridiculously long link with stuff after
+=-=
+* Lorem [ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua](https://en.wikipedia.org/wiki/Lorem_ipsum). Ut enim ad
+=-=
+* Lorem [ipsum dolor sit
+  amet, consectetur
+  adipiscing elit, sed do
+  eiusmod tempor
+  incididunt ut labore et
+  dolore magna aliqua](https://en.wikipedia.org/wiki/Lorem_ipsum). Ut
+  enim ad
+=-=-=
+
+Name: bullet ridiculously long link with more stuff after
+=-=
+* Lorem [ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua](https://en.wikipedia.org/wiki/Lorem_ipsum). Ut enim ad minim veniam,
+=-=
+* Lorem [ipsum dolor sit
+  amet, consectetur
+  adipiscing elit, sed do
+  eiusmod tempor
+  incididunt ut labore et
+  dolore magna aliqua](https://en.wikipedia.org/wiki/Lorem_ipsum). Ut
+  enim ad minim veniam,
+=-=-=
+
+# N.B. Only single line tests for quoted strings, since quotes doesn't work in Emacs-31 markdown-ts-mode
+
+Name: quote short link
+=-=
+> Lorem ipsum [short](https://gnu.org)
+=-=
+> Lorem ipsum [short](https://gnu.org)
+=-=-=
+
+Name: quote two splittable links same line
+=-=
+> Lorem [one 1](https://gnu.org) [two 2](https://fsf.org)
+=-=
+> Lorem [one 1](https://gnu.org) [two 2](https://fsf.org)
+=-=-=
+
+Name: quote two splittable links same line with stuff after
+=-=
+> Lorem [one 1](https://gnu.org) [two 2](https://fsf.org) ipsum
+=-=
+> Lorem [one 1](https://gnu.org) [two 2](https://fsf.org) ipsum
+=-=-=
