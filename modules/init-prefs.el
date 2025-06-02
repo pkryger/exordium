@@ -259,6 +259,21 @@ arguments CONDITION and ARG respectively to `buffer-match-p', which see."
   :group 'exordium
   :safe #'booleanp)
 
+(defcustom exordium-markdown-gh-render-links-predicate '(or (derived-mode . markdown-mode)
+                                                            (derived-mode . markdown-ts-mode))
+  "Use Github like rendering links when filling paragraphs in `markdown-mode'.
+This causes paragraphs with links to appear as they would be rendered by
+Github which may seem like `fill-paragraph' is not obeying
+`fill-column'.  However, the column to fill accounts for invisible part
+of links in Github render, resulting in line breaks in paragraphs being
+closer to what will be the final message.
+
+The predicate and beginning of current line to fill are passed as
+arguments CONDITION and ARG respectively to `buffer-match-p', which see."
+  :type 'buffer-predicate
+  :group 'exordium
+  :safe #'booleanp)
+
 (defcustom exordium-highlight-symbol nil
   "Whether occurrences of symbol under point gets highlighted after a few seconds."
   :group 'exordium

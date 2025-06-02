@@ -38,7 +38,8 @@
 (use-package markdown-mode
   :commands (markdown-mode gfm-mode)
   :autoload (markdown-inline-code-at-pos)
-  :functions (exordium--markdown-nobreak-inline-code-at-point-p)
+  :functions (exordium--markdown-nobreak-inline-code-at-point-p
+              exordium--markdown-adjust-for-gh-render)
   :init
   (defun exordium--markdown-nobreak-inline-code-at-point-p ()
     "Retrun non-nil when point is in inline code.
@@ -60,6 +61,83 @@ The non-nil value is only possible when buffer matches
     (add-hook 'fill-nobreak-predicate
               #'exordium--markdown-nobreak-inline-code-at-point-p nil t))
 
+  (defun exordium--markdown-adjust-for-gh-render (orig-fun linebeg)
+    "Adjust position of `current-column' by invisible parts of links in the line.
+Use LINEBEG to determine where to look for links.  When the adjusted
+position is in current paragraph call ORIG-FUN.  This only happens when
+buffer matchse `exordium-markdown-gh-render-links-predicate'."
+    (if (buffer-match-p exordium-markdown-gh-render-links-predicate
+                        (current-buffer)
+                        linebeg)
+        (let* ((current-column-pos (point))
+               (regex-link (rx-to-string
+                            `(or (regexp ,markdown-regex-link-inline)
+                                 (regexp ,markdown-regex-link-reference))))
+               (eop (save-excursion
+                      (forward-paragraph 1)
+                      (point)))
+               ;; When the line doesn't begin in a middle of a link text and
+               ;; that the link text is not overflowing to a next line, then
+               ;; add the invisible characters (ignoring leading exclamation
+               ;; point and opening square bracket that are in the previous
+               ;; line).
+               (invisible-length (save-excursion
+                                   (goto-char linebeg)
+                                   (if (and (re-search-backward
+                                             (rx "[")
+                                             (save-excursion
+                                               (forward-paragraph -1)
+                                               (point))
+                                             t)
+                                            (looking-at regex-link)
+                                            (< linebeg
+                                               (match-beginning 4) ;; closing square bracket for the link text
+                                               current-column-pos))
+                                       (- (or (match-end 8) ;; closing parenthesis
+                                              (match-end 7)) ;; closing square bracket for the reference label
+                                          (match-beginning 4)) ;; closing square bracket for the link text
+                                     0))))
+          (goto-char linebeg)
+          ;; Search for all links in the paragraph if the point is before
+          ;; adjusted fill column.
+          (while (and (< (point) (+ current-column-pos invisible-length))
+                      (re-search-forward regex-link eop t)
+                      ;; Abort the search when closing square bracket for link
+                      ;; text is behind the adjusted fill column.  In such a
+                      ;; case only include leading exclamation point and
+                      ;; opening square bracket, but only when they are in the
+                      ;; same line.
+                      (let ((too-far (< (match-beginning 4) ;; closing square bracket for the link text
+                                        (+ current-column-pos invisible-length))))
+                        (when (and (not too-far)
+                                   (< linebeg (match-end 2))) ;; opening square bracket for the link text
+                          (cl-incf invisible-length
+                                   (- (match-end 2) ;; opening square bracket for the link text
+                                      (or (match-beginning 1) ;; leading exclamation point (optional)
+                                          (match-beginning 2))))) ;; opening square bracket for the link text
+                        too-far))
+            ;; Increase the number of invisible characters by lenght of all
+            ;; link parts except for the link text.
+            (cl-incf invisible-length
+                     (+ (- (match-end 2) ;; opening square bracket for the link text
+                           (or (match-beginning 1) ;; leading exclamation point (optional)
+                               (match-beginning 2))) ;; opening square bracket for the link text
+                        (- (or (match-end 8) ;; closing parenthesis
+                               (match-end 7)) ;; closing square bracket for the reference label
+                           (match-beginning 4))))) ;; closing square bracket for the link text
+          ;; Go to new column only when it is before the end of the
+          ;; paragraph. Otherwise go to the end of the paragraph and don't
+          ;; call `orig-fun' [sic!] as there's no need to split the line
+          ;; anymore.
+          (let ((new-column (+ current-column-pos
+                               invisible-length
+                               (if (zerop invisible-length) 0 1))))
+            (if (< eop new-column)
+                (goto-char eop)
+              (goto-char new-column)
+              (funcall orig-fun linebeg))))
+      (funcall orig-fun linebeg)))
+
   :mode
   (("README\\.md\\'" . gfm-mode)
    ("\\.md\\'" . markdown-mode)
@@ -70,6 +148,10 @@ The non-nil value is only possible when buffer matches
   (markdown-mode . exordium-electric-mode-add-backtick)
   (markdown-mode . exordium--markdown-add-nobreak-inline-code-hook)
   :config
+  ;; called from `fill-region-as-paragraph'
+  (advice-add #'fill-move-to-break-point
+              :around #'exordium--markdown-adjust-for-gh-render)
+
   ;; TODO: he following feature seems to has changed and a new solution needs
   ;; to be developed.
   ;; Loud face for TODOs in markdown documents
@@ -78,7 +160,7 @@ The non-nil value is only possible when buffer matches
   ;;         (list
   ;;          (cons markdown-regex-italic '(2 markdown-italic-face))
   ;;          (cons "\\<\\(TODO\\|FIXME\\|TBD\\):" '(1 font-lock-warning-face)))))
-)
+  )
 
 ;;; FIXME: quick workaround for a bug in markdown-mode 2.1 (font lock is broken)
 (when (and (boundp 'markdown-mode-version)
