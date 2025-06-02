@@ -37,6 +37,29 @@
 
 (use-package markdown-mode
   :commands (markdown-mode gfm-mode)
+  :autoload (markdown-inline-code-at-pos)
+  :functions (exordium--markdown-nobreak-inline-code-at-point-p)
+  :init
+  (defun exordium--markdown-nobreak-inline-code-at-point-p ()
+    "Retrun non-nil when point is in inline code.
+The non-nil value is only possible when buffer matches
+`exordium-markdown-nobreak-inline-code-predicate'."
+    (when-let* ((point (point))
+                ((buffer-match-p exordium-markdown-nobreak-inline-code-predicate
+                                 (current-buffer)
+                                 point)))
+      (save-match-data
+        (when-let* (((markdown-inline-code-at-pos point (pos-bol))))
+          (< (max (point-min)
+                  (1- (match-beginning 0)))
+             point
+             (match-end 0))))))
+
+  (defun exordium--markdown-add-nobreak-inline-code-hook ()
+    "Add no break inline code local hook to `fill-nobreak-predicate'."
+    (add-hook 'fill-nobreak-predicate
+              #'exordium--markdown-nobreak-inline-code-at-point-p nil t))
+
   :mode
   (("README\\.md\\'" . gfm-mode)
    ("\\.md\\'" . markdown-mode)
@@ -45,6 +68,7 @@
   (markdown-fontify-code-blocks-natively t)
   :hook
   (markdown-mode . exordium-electric-mode-add-backtick)
+  (markdown-mode . exordium--markdown-add-nobreak-inline-code-hook)
   :config
   ;; TODO: he following feature seems to has changed and a new solution needs
   ;; to be developed.
