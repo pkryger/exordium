@@ -33,6 +33,7 @@ project-explorer-cache
 network-security.data
 /tutorial/
 /.org-id-locations
+/ielm-history.eld
 
 # Desktop State
 .emacs.desktop
