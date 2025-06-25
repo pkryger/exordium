@@ -109,7 +109,17 @@ use `whitespace-mode'."
 
 (use-package make-mode
   :defer t
+  :autoload (makefile-backslash-region)
+  :functions (exordium-makefile-backslash-region)
   :init
+  (defun exordium-makefile-backslash-region ()
+    "Like `makefile-backslash-region' (which see), but ensure spaces are used."
+    (interactive)
+    (let (indent-tabs-mode)
+      (call-interactively #'makefile-backslash-region)))
+  :bind
+  (:map makefile-mode-map
+   ("C-c C-\\" . #'exordium-makefile-backslash-region))
   :hook (makefile-mode . exordium-whitespace-tabs-mode))
 
 (provide 'init-prog-mode)
