@@ -26,10 +26,12 @@
 
 (use-package helm-projectile
   :functions (exordium-projectile-switch-project-find-file-other-window
+              exordium-helm-projectile--switch-project-and-do-ag
               exordium-helm-projectile--switch-project-and-do-rg
               exordium-helm-projectile--exit-helm-and-do-ag
               exordium-helm-projectile--exit-helm-and-do-rg
-              exordium-helm-projectile--make-source-with)
+              exordium-helm-projectile--make-source-with
+              exordium-helm-projectile-do-grep-ag)
   :commands (helm-projectile-switch-project)
   :init
   (defun exordium-projectile-switch-project-find-file-other-window ()
@@ -66,13 +68,22 @@ ACTION is a cons in a form of (DESCRIPTION . FUNCTION)."
       source)
      source))
 
-  (defun exordium-helm-projectile--exit-helm-and-do-ag ()
+  (defun exordium-helm-projectile--exit-helm-and-do-ag (&optional arg)
     "Exit helm and run ag on first selected candidate."
-    (interactive)
+    (interactive "P")
     (if-let* ((project (car (helm-marked-candidates))))
-        (helm-run-after-exit #'helm-do-ag
-                             project)
+        (helm-run-after-exit #'helm-grep-ag
+                             (projectile-project-root project) arg)
       (error "No candidates selected")))
+
+  (defun exordium-helm-projectile--switch-project-and-do-ag (project)
+    "Switch projct to PROJECT and run ag there."
+    (interactive)
+    (let ((projectile-switch-project-action
+           (lambda (&optional arg)
+             (interactive "P")
+             (helm-grep-ag (projectile-project-root) arg))))
+      (projectile-switch-project-by-name project)))
 
   (defun exordium-helm-projectile--switch-project-and-do-rg (project)
     "Switch projct to PROJECT and run ripgrep there."
@@ -88,11 +99,17 @@ ACTION is a cons in a form of (DESCRIPTION . FUNCTION)."
                              project)
       (error "No candidates selected")))
 
+  (defun exordium-helm-projectile-do-grep-ag (&optional arg)
+    "Like `helm-do-grep-ag' but start in root of current project."
+    (interactive "P")
+    (when-let* ((dir (projectile-project-root)))
+      (helm-grep-ag dir arg)))
+
   :bind
   (("C-c h"   . #'helm-projectile)
    ("C-c H"   . #'helm-projectile-switch-project)
    ("C-c M-h" . #'helm-projectile-switch-project)
-   ("C-S-a"   . #'helm-projectile-ag)
+   ("C-S-a"   . #'exordium-helm-projectile-do-grep-ag)
    ("C-S-r"   . #'helm-projectile-rg)
    :map helm-projectile-projects-map
    ("C-S-a" . #'exordium-helm-projectile--exit-helm-and-do-ag)
@@ -100,7 +117,7 @@ ACTION is a cons in a form of (DESCRIPTION . FUNCTION)."
 
   :config
   (helm-add-action-to-source "Silver Searcher (ag) in project `C-S-a'"
-                             #'helm-do-ag
+                             #'exordium-helm-projectile--switch-project-and-do-ag
                              helm-source-projectile-projects)
 
   (helm-add-action-to-source "ripgrep (rg) in project `C-S-r'"

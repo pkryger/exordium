@@ -113,8 +113,7 @@ with `exordium-magit-quit-session'."
                   exordium--magit-fullscreen-configuration-tmp)))
 
   (defun exordium-magit--dont-insert-symbol-for-search ()
-    "Don't insert a symbol at point when starting ag or rg."
-    (setq-local helm-ag-insert-at-point nil)
+    "Don't insert a symbol at point when starting rg."
     (setq-local helm-rg-thing-at-point nil))
 
   ;;; Turn off the horrible warning about magit auto-revert of saved buffers
