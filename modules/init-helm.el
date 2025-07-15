@@ -90,8 +90,7 @@
   (use-package helm-grep
     :ensure helm
     :defer t
-    :autoload (helm-grep-ag
-               helm-grep-ag-1))
+    :autoload (helm-grep-ag))
 
   (defun exordium--helm-swith-to-buffer-update-sources (&rest args)
     "Copy relevant attributes from a `helm-source-buffers' to `:sources' in ARGS."
@@ -153,13 +152,6 @@
       (advice-remove
        'helm #'exordium--helm-swith-to-buffer-update-sources))))
 
-  (defun exordium--helm-grep-ag-maybe-use-symbol-at-point (args)
-    "Use symbol at point as a third argument ARGS."
-    (unless (derived-mode-p 'magit-status-mode)
-      (pcase-let ((`(,directory ,type ,input) args))
-        (list directory type (or input
-                                 (thing-at-point 'symbol))))))
-
   (defun exordium-helm-do-grep-ag-in-directory (&optional arg)
     "Like `helm-do-grep-ag', but ask for a directory first."
     (interactive "P")
@@ -205,14 +197,6 @@
                  switch-to-buffer-other-window))
     (add-to-list 'helm-completing-read-handlers-alist
                  (cons fun #'exordium--helm-switch-to-buffer-completing-read)))
-
-  ;; `helm-grep-ag' uses symbol at point as an argument default-input but not
-  ;; as an argument input. This results in ag being run with the symbol, but
-  ;; typing anything starts search anew. This advice will use symbol at point
-  ;; as an input argument to `helm-grep-ag-1', which will populate both
-  ;; arguments: default-input and input.
-  (advice-add #'helm-grep-ag-1
-              :filter-args #'exordium--helm-grep-ag-maybe-use-symbol-at-point)
 
   (helm-mode))
 
