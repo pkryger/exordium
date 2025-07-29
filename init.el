@@ -8,11 +8,6 @@
 
 ;;; Code:
 
-;; Reduce the frequency of garbage collection by making it happen on
-;; each 100MB of allocated data (the default is on every 0.76MB). This reduces
-;; the startup time.
-(setq gc-cons-threshold 100000000)
-
 (let ((min-version "28"))
   (when (version< emacs-version min-version)
     (error "This config requires at least Emacs-%s, but you're running %s"
@@ -94,6 +89,11 @@ Default for Exordium.")
   "URL for stable MELPA packages repository.
 Only active when there are `exordium-extra-pinned' packages from
 melpa-stable.")
+
+;; TODO: early-init
+;; - move the whole taps discovery and perhaps loading of (prefs.el)
+;; - convert `add-to-list' to cons
+;; - move other variables. Perhaps add support for custom early-init in taps as well
 
 ;; Taps definition of before and after files. These are loaded
 ;; after master 'before', 'after', and 'prefs' files
@@ -349,7 +349,7 @@ after it's been byte compiled."
 (exordium-require 'init-environment)      ; environment variables
 
 
-(dolist (tapped-file exordium-tapped-prefs-files)
+(dolist (tapped-file exordium-tapped-prefs-files) ;; TODO: move to early-init?
   (message "Loading tapped prefs file: %s" tapped-file)
   (load (file-name-sans-extension tapped-file)))
 
