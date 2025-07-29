@@ -72,7 +72,7 @@ Set FONT and SIZE if they are passed as arguments."
                           :weight 'normal)
       t))) ;; indicate that the font has been set
 
-(when exordium-preferred-fonts
+(when exordium-preferred-fonts ;; TODO: early-init (not in prot, but mabye??)
   (exordium-set-font))
 
 (if (daemonp)
@@ -80,19 +80,19 @@ Set FONT and SIZE if they are passed as arguments."
 
 ;;; User interface
 
-;;; Default frame size
+;;; Default frame size ; TODO: early-init, but how to read that from pref.el (in taps as well)
 (when (and exordium-preferred-frame-width
            exordium-preferred-frame-height)
   (setq default-frame-alist `((width  . ,exordium-preferred-frame-width)
                               (height . ,exordium-preferred-frame-height))))
 
-;;; Remove the toolbar
+;;; Remove the toolbar ;; TODO: early-init - prot, l.32
 (when (fboundp 'tool-bar-mode)
   (tool-bar-mode -1))
 
 ;;; Only show the menu bar in a graphical window
 ;;; (we don't want to loose that top line in a tty)
-(menu-bar-mode (if (null (window-system)) -1 1))
+(menu-bar-mode (if (null (window-system)) -1 1)) ;; TODO: early-init - prot l.31
 
 ;;; Remove welcome message
 (setq inhibit-startup-message t)
@@ -116,7 +116,7 @@ Set FONT and SIZE if they are passed as arguments."
 (when (fboundp 'set-scroll-bar-mode)
   (if exordium-scroll-bar
       (set-scroll-bar-mode `right)
-    (set-scroll-bar-mode nil)))
+    (set-scroll-bar-mode nil))) ;; TODO: early-init - prot l.38
 
 ;;; Better frame title with buffer name
 (setq frame-title-format (concat "%b - emacs@" (system-name)))
