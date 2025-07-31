@@ -16,8 +16,7 @@
 
 (use-package el-mock
   :ensure t
-  :autoload (mocklet
-             mocklet-function))
+  :autoload (mocklet))
 
 (require 'package)
 (require 'use-package)
