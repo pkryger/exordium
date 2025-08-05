@@ -13,15 +13,16 @@
 
 (defun exordium--restore-desktop ()
   "Restore desktop."
-  (setq desktop-path (list user-emacs-directory))
-  (setq desktop-save t)
-  (message (format "Loading desktop from %s" desktop-path))
-  (desktop-read)
-  (desktop-save-mode 1))
+  (unless desktop-save-mode
+    (setq desktop-path (list user-emacs-directory))
+    (setq desktop-save t)
+    (message (format "Loading desktop from %s" desktop-path))
+    (desktop-read)
+    (desktop-save-mode 1)))
 
-(if (not (daemonp))
-    (desktop-save-mode 1)
-  (add-hook 'server-after-make-frame-hook #'exordium--restore-desktop))
+(if (daemonp)
+    (add-hook 'server-after-make-frame-hook #'exordium--restore-desktop)
+  (add-hook 'after-init-hook #'desktop-save-mode))
 
 (savehist-mode t) ;; minibuffer history is saved
 
