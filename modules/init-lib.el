@@ -66,14 +66,21 @@ Warn if DIR is not a directory and IGNORE-IF-ABSENT is nil."
   (substring string 0 (max 0 (- (length string) n))))
 
 
-(defun exordium-electric-mode-add-back-tick ()
+(defun exordium-electric-mode-add-backtick ()
  "Add backtick to electric pair mode.
 It makes buffer local variable with an extra back tick added."
   (when exordium-enable-electric-pair-mode
-    (setq-local electric-pair-pairs
-                (append electric-pair-pairs '((?` . ?`))))
-    (setq-local electric-pair-text-pairs
-                (append electric-pair-text-pairs '((?` . ?`))))))
+    (let ((pair (if (derived-mode-p 'log-edit-mode)
+                    '(?` . ?')
+                  '(?` . ?`))))
+      (when (and (derived-mode-p 'prog-mode)
+                 (not (derived-mode-p 'git-commit-ts-mode)))
+        (warn "Exordium: Adding (%c . %c) to electric-pair!"
+              (car pair) (cdr pair)))
+      (setq-local electric-pair-pairs
+                  (cons pair electric-pair-pairs))
+      (setq-local electric-pair-text-pairs
+                  (cons pair electric-pair-text-pairs)))))
 
 
 (defun exordium-browse-url-at-point ()
