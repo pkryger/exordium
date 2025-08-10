@@ -42,7 +42,7 @@
    ("\\.md\\'" . markdown-mode)
    ("\\.markdown\\'" . markdown-mode))
   :hook
-  (markdown-mode . exordium-electric-mode-add-back-tick)
+  (markdown-mode . exordium-electric-mode-add-backtick)
   :config
   ;; TODO: he following feature seems to has changed and a new solution needs
   ;; to be developed.
