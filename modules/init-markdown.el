@@ -145,7 +145,7 @@ buffer matchse `exordium-markdown-gh-render-links-predicate'."
   :custom
   (markdown-fontify-code-blocks-natively t)
   :hook
-  (markdown-mode . exordium-electric-mode-add-back-tick)
+  (markdown-mode . exordium-electric-mode-add-backtick)
   (markdown-mode . exordium--markdown-add-nobreak-inline-code-hook)
   :config
   ;; called from `fill-region-as-paragraph'
