@@ -71,14 +71,15 @@
   :ensure nil)
 (defun cpp-highlight-dead-code ()
   "Highlight c/c++ #if 0 #endif macros."
-  (let ((color (face-background 'shadow)))
-    (setq cpp-known-face 'default)
-    (setq cpp-unknown-face 'default)
-    (setq cpp-known-writable 't)
-    (setq cpp-unknown-writable 't)
-    (setq cpp-edit-list `(("0" (background-color . ,color) default both)
-                          ("1" default (background-color . ,color) both)))
-    (cpp-highlight-buffer t)))
+  (unless (derived-mode-p 'objc-mode)
+    (let ((color (face-background 'shadow)))
+      (setq cpp-known-face 'default)
+      (setq cpp-unknown-face 'default)
+      (setq cpp-known-writable 't)
+      (setq cpp-unknown-writable 't)
+      (setq cpp-edit-list `(("0" (background-color . ,color) default both)
+                            ("1" default (background-color . ,color) both)))
+      (cpp-highlight-buffer t))))
 
 (defun cpp-highlight-dead-code-hook ()
   "Highlight dead code blocks."
