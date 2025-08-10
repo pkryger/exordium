@@ -333,7 +333,7 @@ with `exordium-magit-quit-session'."
 
 
 ;;; Make backtick an electric pair
-(add-hook 'git-commit-mode-hook #'exordium-electric-mode-add-back-tick)
+(add-hook 'git-commit-mode-hook #'exordium-electric-mode-add-backtick)
 
 
 (use-package ediff
