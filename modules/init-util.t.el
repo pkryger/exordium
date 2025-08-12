@@ -16,7 +16,8 @@
 
 (use-package el-mock
   :ensure t
-  :autoload (mocklet))
+  :autoload (mocklet
+             mocklet-function))
 
 (require 'ert)
 (require 'cl-lib)
