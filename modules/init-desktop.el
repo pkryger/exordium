@@ -75,6 +75,25 @@
   :config
   (save-place-mode))
 
+(use-package persistent-scratch
+  :init
+  (defun exordium--persistent-scratch--scratch-buffer-p ()
+    "Return non nil when buffer should be preserved by `persistent-scratch'.
+Buffers to preserve:
+- buffer named \"*scratch\",
+- non empty buffer created with `scratch' (i.e., name starts with
+  \"scratch-\"),
+- buffer that names starts with \"*unsent \"."
+    (let ((buffer-name (buffer-name)))
+      (or (string= "*scratch*" buffer-name)
+          (and (string-prefix-p "scratch-" buffer-name)
+               (not (eq (point-min) (point-max))))
+          (string-prefix-p "*unsent " buffer-name))))
+  :custom
+  (persistent-scratch-scratch-buffer-p-function #'exordium--persistent-scratch--scratch-buffer-p)
+  :hook
+  (after-init . persistent-scratch-setup-default))
+
 (provide 'init-desktop)
 
 ;;; init-desktop.el ends here
