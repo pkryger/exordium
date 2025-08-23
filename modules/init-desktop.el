@@ -75,6 +75,20 @@
   :config
   (save-place-mode))
 
+(use-package persistent-scratch
+  :init
+  (defun exordium--persistent-scratch--scratch-buffer-p ()
+    "Return non nil when the buffer is a scratch like buffer.
+I.e., created with `scratch' or named scratch-"
+    (let ((buffer-name (buffer-name)))
+      (or (string= "*scratch*" buffer-name)
+          (and (string-prefix-p "scratch-" buffer-name)
+               (not (eq (point-min) (point-max)))))))
+  :custom
+  (persistent-scratch-scratch-buffer-p-function #'exordium--persistent-scratch--scratch-buffer-p)
+  :hook
+  (after-init . persistent-scratch-setup-default))
+
 (provide 'init-desktop)
 
 ;;; init-desktop.el ends here
