@@ -560,6 +560,11 @@ after it's been byte compiled."
 (when exordium-desktop
   (exordium-require 'init-desktop))
 
+;; Configure `gcmh' since it is only loaded via `after-init-hook' and some
+;; buffers restored in init-desktop may require `gcmh-high-cons-threshold' to
+;; be bound.
+(exordium-require 'init-gcmh)
+
 ;; Local extensions
 (dolist (tapped-file exordium-tapped-after-init-files)
   (message "Loading tapped after-init file: %s" tapped-file)
