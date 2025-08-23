@@ -5,8 +5,6 @@
 
 ;;; Code:
 
-(require 'saveplace)
-
 (use-package desktop
   :ensure nil
   :functions (exordium--restore-desktop)
@@ -70,9 +68,12 @@
   :config
   (savehist-mode))
 
-(setq save-place-file
-      (locate-user-emacs-file "saveplace"))   ;; location to save point
-(save-place-mode)                             ;; activate it for all buffers
+(use-package saveplace
+  :ensure nil
+  :custom
+  (save-place-file (locate-user-emacs-file "saveplace"))
+  :config
+  (save-place-mode))
 
 (provide 'init-desktop)
 
