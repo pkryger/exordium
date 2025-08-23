@@ -6,7 +6,6 @@
 ;;; Code:
 
 (require 'saveplace)
-(require 'savehist)
 
 (use-package desktop
   :ensure nil
@@ -58,7 +57,18 @@
       (add-hook 'server-after-make-frame-hook #'exordium--restore-desktop)
     (add-hook 'after-init-hook #'desktop-save-mode)))
 
-(savehist-mode t) ;; minibuffer history is saved
+(use-package savehist
+  :ensure nil
+  :custom
+  (savehist-additional-variables '(command-history
+                                   kill-ring
+                                   log-edit-comment-ring
+                                   recentf-list
+                                   regexp-search-ring
+                                   register-alist
+                                   search-ring))
+  :config
+  (savehist-mode))
 
 (setq save-place-file
       (locate-user-emacs-file "saveplace"))   ;; location to save point
