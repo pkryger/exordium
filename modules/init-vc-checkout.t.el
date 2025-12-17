@@ -302,12 +302,29 @@ Recursion is in order: FORM, (car FORM), (cdr FORM)."
       (exordium--vc-checkout-install 'dummy-package "/a/path"))))
 
 (ert-deftest exordium--vc-checkout-install-intalled-from-vc ()
+  (skip-unless (version<= "31" emacs-version))
+  (let* ((desc (package-desc-create :name 'dummy-package
+                                    :kind 'vc
+                                    :extras '((:vc-dir . "/other/path"))))
+         (package-alist `((dummy-package ,desc))))
+    (eval
+     `(mocklet (((exordium--vc-checkout-valid-p "/a/path") => t)
+                ((file-equal-p "/a/path" "/other/path"))
+                ((exordium--vc-checkout-package-delete ,desc) :times 1)
+                ((package-vc-install-from-checkout
+                  "/a/path" "dummy-package")
+                 :times 1))
+        (exordium--vc-checkout-install 'dummy-package "/a/path")))))
+
+(ert-deftest exordium--vc-checkout-install-intalled-from-vc-until-emacs-31 ()
+  (skip-unless (version< emacs-version "31"))
   (let* ((desc (package-desc-create :name 'dummy-package
                                     :kind 'vc
                                     :dir "/other/path"))
          (package-alist `((dummy-package ,desc))))
     (eval
      `(mocklet (((exordium--vc-checkout-valid-p "/a/path") => t)
+                ((file-equal-p "/a/path" "/other/path"))
                 ((exordium--vc-checkout-package-delete ,desc) :times 1)
                 ((package-vc-install-from-checkout
                   "/a/path" "dummy-package")
@@ -315,12 +332,27 @@ Recursion is in order: FORM, (car FORM), (cdr FORM)."
         (exordium--vc-checkout-install 'dummy-package "/a/path")))))
 
 (ert-deftest exordium--vc-checkout-install-intalled-from-vc-same-dir ()
+  (skip-unless (version<= "31" emacs-version))
+  (let* ((desc (package-desc-create :name 'dummy-package
+                                    :kind 'vc
+                                    :extras '((:vc-dir . "/a/path"))))
+         (package-alist `((dummy-package ,desc))))
+    (eval
+     `(mocklet (((exordium--vc-checkout-valid-p "/a/path") => t)
+                ((file-equal-p "/a/path" "/a/path") => t)
+                (exordium--vc-checkout-package-delete not-called)
+                (package-vc-install-from-checkout not-called))
+        (exordium--vc-checkout-install 'dummy-package "/a/path")))))
+
+(ert-deftest exordium--vc-checkout-install-intalled-from-vc-same-dir-until-emacs-31 ()
+  (skip-unless (version< emacs-version "31"))
   (let* ((desc (package-desc-create :name 'dummy-package
                                     :kind 'vc
                                     :dir "/a/path"))
          (package-alist `((dummy-package ,desc))))
     (eval
      `(mocklet (((exordium--vc-checkout-valid-p "/a/path") => t)
+                ((file-equal-p "/a/path" "/a/path") => t)
                 (exordium--vc-checkout-package-delete not-called)
                 (package-vc-install-from-checkout not-called))
         (exordium--vc-checkout-install 'dummy-package "/a/path")))))
