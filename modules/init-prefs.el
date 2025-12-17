@@ -734,7 +734,7 @@ Default is to choose the first that is found via `executable-find'."
   :type '(choice (const :tag "Bottom" bottom)
                  (const :tag "Right" right)))
 
-(defcustom exordium-lsp-mode-enable t
+(defcustom exordium-lsp-mode-enable nil
   "Enable lsp-mode."
   :group 'exordium
   :type 'boolean)
