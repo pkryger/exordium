@@ -203,16 +203,18 @@ installed from DIR."
   (when-let* ((dir (or dir (alist-get name exordium-vc-checkout-alist)))
               ((exordium--vc-checkout-valid-p dir)))
     (let (installed)
-     (when-let* ((desc (cadr (assq name package-alist)))
-                 (pkg-dir (package-desc-dir desc)))
+     (when-let* ((desc (cadr (assq name package-alist))))
        (pcase (package-desc-kind desc)
          ((and
            'vc
            (guard (not
                    (setq installed
-                         (equal (file-truename (file-name-as-directory dir))
-                                (file-truename (file-name-as-directory
-                                                (package-desc-dir desc))))))))
+                         (if (version< emacs-version "31") ;; Until Emacs 31
+                             (file-equal-p dir (package-desc-dir desc))
+                           (when-let* ((checkout-dir
+                                        (alist-get :vc-dir
+                                                   (package-desc-extras desc))))
+                             (file-equal-p dir checkout-dir)))))))
           ;; Package has been previously installed from :vc, but checkout
           ;; appeared on a subsequent eval.  This is to avoid deleting package
           ;; when it has been already VC installed from the specified checkout
