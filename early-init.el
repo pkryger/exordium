@@ -15,6 +15,15 @@
 
 ;; TODO: `(window-system)' is nil in early-init when running on GUI
 
+(dolist (variable '(initial-frame-alist default-frame-alist))
+  (set variable `((width . 160)
+                  (height . 50)
+                  ,(cond
+                    ((symbolp 'mac-transparent-titlebar)
+                     '(mac-transparent-titlebar . t))
+                    ((symbolp 'ns-transparent-titlebar)
+                     '(ns-transparent-titlebar . t))))))
+
 (provide 'early-init)
 
 ;;; early-init.el ends here
