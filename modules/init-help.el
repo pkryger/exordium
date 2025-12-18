@@ -49,6 +49,9 @@
   :functions (exordium--helpful-persistent-action
               exordium--helm-helpful-completing-read)
   :init
+  (use-package transient
+    :ensure nil
+    :autoload (transient--describe-function))
   (use-package helm
     :defer t
     :custom
@@ -160,7 +163,10 @@ Otherwise pop to buffer (presumably in a new window)."
                  helpful-symbol
                  helpful-variable))
     (add-to-list 'helm-completing-read-handlers-alist
-                 (cons fun #'exordium--helm-helpful-completing-read))))
+                 (cons fun #'exordium--helm-helpful-completing-read)))
+
+  (advice-add #'transient--describe-function
+              :override #'helpful-function))
 
 
 (when (version< "30" emacs-version) ;; Since Emacs-30
