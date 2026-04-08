@@ -51,9 +51,10 @@
 
   (add-to-list 'desktop-minor-mode-table '(company-posframe-mode nil))
 
-  (if (daemonp)
-      (add-hook 'server-after-make-frame-hook #'exordium--restore-desktop)
-    (add-hook 'after-init-hook #'desktop-save-mode)))
+  ;; (if (daemonp)
+  ;;     (add-hook 'server-after-make-frame-hook #'exordium--restore-desktop)
+  ;;   (add-hook 'after-init-hook #'desktop-save-mode))
+  )
 
 (use-package savehist
   :ensure nil
